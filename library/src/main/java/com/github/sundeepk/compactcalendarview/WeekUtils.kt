@@ -1,9 +1,7 @@
 package com.github.sundeepk.compactcalendarview
 
 import java.text.DateFormatSymbols
-import java.util.Arrays
-import java.util.Locale
-import kotlin.collections.ArrayList
+import java.util.*
 
 class WeekUtils {
 
@@ -18,15 +16,13 @@ class WeekUtils {
                         + Arrays.toString(dayNames) + " with size " + dayNames.size + " was returned.")
             }
 
-            val weekDayNames = ArrayList<String>(7)
+            val weekDayNames = arrayListOf("", "", "", "", "", "", "")
             val weekDaysFromSunday = arrayOf(dayNames[1], dayNames[2], dayNames[3], dayNames[4], dayNames[5], dayNames[6], dayNames[7])
             run {
                 var currentDay = day - 1
-                var i = 0
-                while (i <= 6) {
+                for (i in 0..6) {
                     currentDay = if (currentDay >= 7) 0 else currentDay
                     weekDayNames[i] = weekDaysFromSunday[currentDay]
-                    i++
                     currentDay++
                 }
             }

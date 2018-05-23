@@ -1,6 +1,7 @@
 package com.github.sundeepk.compactcalendarview
 
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
 
@@ -57,9 +58,9 @@ class WeekUtilsTest {
 
     @Test
     fun itShouldReturnCorrectWeekDaysWhenSundayIsFirstDayWith3Letters() {
-        val expectedWeekDays = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-        val actualWeekDays = WeekUtils.getWeekdayNames(Locale.ENGLISH, Calendar.SUNDAY, true).toArray()
-        assertArrayEquals(expectedWeekDays, actualWeekDays)
+        val expectedWeekDays = arrayListOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        val actualWeekDays = WeekUtils.getWeekdayNames(Locale.ENGLISH, Calendar.SUNDAY, true)
+        assertEquals(expectedWeekDays, actualWeekDays)
     }
 
     @Test

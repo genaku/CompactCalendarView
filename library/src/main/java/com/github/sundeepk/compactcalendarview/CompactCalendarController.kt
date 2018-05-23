@@ -16,12 +16,12 @@ import com.github.sundeepk.compactcalendarview.domain.Event
 import java.util.*
 import kotlin.collections.ArrayList
 
-internal class CompactCalendarController(
-        dayPaint: Paint,
-        private val scroller: OverScroller,
-        private val textSizeRect: Rect,
+class CompactCalendarController(
+        private var dayPaint: Paint?,
+        private val scroller: OverScroller?,
+        private val textSizeRect: Rect?,
         attrs: AttributeSet?,
-        context: Context,
+        context: Context?,
         private var currentDayBackgroundColor: Int,
         private var calenderTextColor: Int,
         private var currentSelectedDayBackgroundColor: Int,
@@ -84,7 +84,6 @@ internal class CompactCalendarController(
     private lateinit var calendarWithFirstDayOfMonth: Calendar
     private lateinit var eventsCalendar: Calendar
     private val accumulatedScrollOffset = PointF()
-    private var dayPaint = Paint()
     private val background = Paint()
     private var dayColumnNames: ArrayList<String> = ArrayList()
     private var currentDayTextColor: Int = 0
@@ -104,9 +103,9 @@ internal class CompactCalendarController(
     // pick a point which is almost half way through heightPerDay and textSizeRect
     val interpolatedBigCircleIndicator: Float
         get() {
-            val x0 = textSizeRect.height().toFloat()
+            val x0 = textSizeRect?.height()?.toFloat() ?: 0f
             val x1 = heightPerDay.toFloat()
-            val x = (x1 + textSizeRect.height()) / 2f
+            val x = (x1 + (textSizeRect?.height() ?: 0)) / 2f
             val y1 = 0.5 * Math.sqrt((x1 * x1 + x1 * x1).toDouble())
             val y0 = 0.5 * Math.sqrt((x0 * x0 + x0 * x0).toDouble())
 
@@ -135,7 +134,6 @@ internal class CompactCalendarController(
     }
 
     init {
-        this.dayPaint = dayPaint
         this.otherMonthDaysTextColor = calenderTextColor
         this.velocityTracker = velocityTracker
         this.displayOtherMonthDays = false
@@ -187,15 +185,17 @@ internal class CompactCalendarController(
         setFirstDayOfWeek(firstDayOfWeekToDraw)
 
         setUseWeekDayAbbreviation(false)
-        dayPaint.textAlign = Paint.Align.CENTER
-        dayPaint.style = Paint.Style.STROKE
-        dayPaint.flags = Paint.ANTI_ALIAS_FLAG
-        dayPaint.typeface = Typeface.SANS_SERIF
-        dayPaint.textSize = textSize.toFloat()
-        dayPaint.color = calenderTextColor
-        dayPaint.getTextBounds("31", 0, "31".length, textSizeRect)
-        textHeight = textSizeRect.height() * 3
-        textWidth = textSizeRect.width() * 2
+        dayPaint?.apply {
+            textAlign = Paint.Align.CENTER
+            style = Paint.Style.STROKE
+            flags = Paint.ANTI_ALIAS_FLAG
+            typeface = Typeface.SANS_SERIF
+            textSize = textSize.toFloat()
+            color = calenderTextColor
+            getTextBounds("31", 0, "31".length, textSizeRect)
+        }
+        textHeight = 3 * (textSizeRect?.height() ?: 0)
+        textWidth = 2 * (textSizeRect?.width() ?: 0)
 
         todayCalender.time = Date()
         setToMidnight(todayCalender)
@@ -343,11 +343,11 @@ internal class CompactCalendarController(
         this.dayColumnNames = WeekUtils.getWeekdayNames(locale, firstDayOfWeekToDraw, this.useThreeLetterAbbreviation)
     }
 
-    fun setDayColumnNames(dayColumnNames: ArrayList<String>) {
+    fun setDayColumnNames(dayColumnNames: List<String>) {
         if (dayColumnNames.size != 7) {
             throw IllegalArgumentException("Column names cannot be null and must contain a value for each day of the week")
         }
-        this.dayColumnNames = dayColumnNames
+        this.dayColumnNames = ArrayList(dayColumnNames)
     }
 
     fun setShouldDrawDaysHeader(shouldDrawDaysHeader: Boolean) {
@@ -386,11 +386,13 @@ internal class CompactCalendarController(
     }
 
     private fun drawCalendarWhileAnimatingIndicators(canvas: Canvas) {
-        dayPaint.color = calenderBackgroundColor
-        dayPaint.style = Paint.Style.FILL
-        canvas.drawCircle(0f, 0f, growFactor, dayPaint)
-        dayPaint.style = Paint.Style.STROKE
-        dayPaint.color = Color.WHITE
+        dayPaint?.apply {
+            color = calenderBackgroundColor
+            style = Paint.Style.FILL
+            canvas.drawCircle(0f, 0f, growFactor, dayPaint)
+            style = Paint.Style.STROKE
+            color = Color.WHITE
+        }
         drawScrollableCalender(canvas)
     }
 
@@ -398,8 +400,8 @@ internal class CompactCalendarController(
         background.color = calenderBackgroundColor
         background.style = Paint.Style.FILL
         canvas.drawCircle(0f, 0f, growFactor, background)
-        dayPaint.style = Paint.Style.STROKE
-        dayPaint.color = Color.WHITE
+        dayPaint?.style = Paint.Style.STROKE
+        dayPaint?.color = Color.WHITE
         drawScrollableCalender(canvas)
     }
 
@@ -427,7 +429,7 @@ internal class CompactCalendarController(
     }
 
     // Add a little leeway buy checking if amount scrolled is almost same as expected scroll
-    // as it maybe off by a few pixels
+// as it maybe off by a few pixels
     private fun isScrolling(): Boolean {
         val scrolledX = Math.abs(accumulatedScrollOffset.x)
         val expectedScrollX = Math.abs(width * monthsScrolledSoFar)
@@ -466,8 +468,10 @@ internal class CompactCalendarController(
 
         when {
             event.action == MotionEvent.ACTION_DOWN -> {
-                if (!scroller.isFinished) {
-                    scroller.abortAnimation()
+                scroller?.apply {
+                    if (!this.isFinished) {
+                        this.abortAnimation()
+                    }
                 }
                 isSmoothScrolling = false
             }
@@ -488,7 +492,7 @@ internal class CompactCalendarController(
 
     private fun snapBackScroller() {
         val remainingScrollAfterFingerLifted1 = accumulatedScrollOffset.x - monthsScrolledSoFar * width
-        scroller.startScroll(accumulatedScrollOffset.x.toInt(), 0, (-remainingScrollAfterFingerLifted1).toInt(), 0)
+        scroller?.startScroll(accumulatedScrollOffset.x.toInt(), 0, (-remainingScrollAfterFingerLifted1).toInt(), 0)
     }
 
     private fun handleHorizontalScrolling() {
@@ -548,7 +552,7 @@ internal class CompactCalendarController(
     private fun performScroll() {
         val targetScroll = monthsScrolledSoFar * width
         val remainingScrollAfterFingerLifted = targetScroll - accumulatedScrollOffset.x
-        scroller.startScroll(accumulatedScrollOffset.x.toInt(), 0, remainingScrollAfterFingerLifted.toInt(), 0,
+        scroller?.startScroll(accumulatedScrollOffset.x.toInt(), 0, remainingScrollAfterFingerLifted.toInt(), 0,
                 (Math.abs(remainingScrollAfterFingerLifted.toInt()) / width.toFloat() * ANIMATION_SCREEN_SET_DURATION_MILLIS).toInt())
     }
 
@@ -556,7 +560,7 @@ internal class CompactCalendarController(
         distanceX = 0f
         monthsScrolledSoFar = 0
         accumulatedScrollOffset.x = 0f
-        scroller.startScroll(0, 0, 0, 0)
+        scroller?.startScroll(0, 0, 0, 0)
         currentDate = Date(dateTimeMonth.time)
         currentCalender.time = currentDate
         todayCalender = Calendar.getInstance(timeZone, locale)
@@ -574,16 +578,16 @@ internal class CompactCalendarController(
         eventsContainer?.addEvent(event)
     }
 
-    fun addEvents(events: List<Event>) {
+    fun addEvents(events: ArrayList<Event>) {
         eventsContainer?.addEvents(events)
     }
 
     fun getCalendarEventsFor(epochMillis: Long): ArrayList<Event>? {
-        return eventsContainer?.getEventsFor(epochMillis) ?: ArrayList<Event>()
+        return eventsContainer?.getEventsFor(epochMillis) ?: ArrayList()
     }
 
     fun getCalendarEventsForMonth(epochMillis: Long): ArrayList<Event> {
-        return eventsContainer?.getEventsForMonth(epochMillis) ?: ArrayList<Event>()
+        return eventsContainer?.getEventsForMonth(epochMillis) ?: ArrayList()
     }
 
     fun removeEventsFor(epochMillis: Long) {
@@ -603,19 +607,21 @@ internal class CompactCalendarController(
     }
 
     fun onDown(e: MotionEvent): Boolean {
-        scroller.forceFinished(true)
+        scroller?.forceFinished(true)
         return true
     }
 
     fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-        scroller.forceFinished(true)
+        scroller?.forceFinished(true)
         return true
     }
 
     fun computeScroll(): Boolean {
-        if (scroller.computeScrollOffset()) {
-            accumulatedScrollOffset.x = scroller.currX.toFloat()
-            return true
+        scroller?.apply {
+            if (this.computeScrollOffset()) {
+                accumulatedScrollOffset.x = this.currX.toFloat()
+                return true
+            }
         }
         return false
     }
@@ -650,11 +656,13 @@ internal class CompactCalendarController(
     }
 
     private fun drawCalenderBackground(canvas: Canvas) {
-        dayPaint.color = calenderBackgroundColor
-        dayPaint.style = Paint.Style.FILL
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dayPaint)
-        dayPaint.style = Paint.Style.STROKE
-        dayPaint.color = calenderTextColor
+        dayPaint?.apply {
+            color = calenderBackgroundColor
+            style = Paint.Style.FILL
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), this)
+            style = Paint.Style.STROKE
+            color = calenderTextColor
+        }
     }
 
     fun drawEvents(canvas: Canvas, currentMonthToDrawCalender: Calendar, offset: Int) {
@@ -745,11 +753,13 @@ internal class CompactCalendarController(
             val event = eventsList[j]
             val xStartPosition = xPosition + xIndicatorOffset * k
             if (j == 2) {
-                dayPaint.color = multiEventIndicatorColor
-                dayPaint.strokeWidth = multiDayIndicatorStrokeWidth
-                canvas.drawLine(xStartPosition - smallIndicatorRadius, yPosition, xStartPosition + smallIndicatorRadius, yPosition, dayPaint)
-                canvas.drawLine(xStartPosition, yPosition - smallIndicatorRadius, xStartPosition, yPosition + smallIndicatorRadius, dayPaint)
-                dayPaint.strokeWidth = 0f
+                dayPaint?.apply {
+                    color = multiEventIndicatorColor
+                    strokeWidth = multiDayIndicatorStrokeWidth
+                    canvas.drawLine(xStartPosition - smallIndicatorRadius, yPosition, xStartPosition + smallIndicatorRadius, yPosition, this)
+                    canvas.drawLine(xStartPosition, yPosition - smallIndicatorRadius, xStartPosition, yPosition + smallIndicatorRadius, this)
+                    strokeWidth = 0f
+                }
             } else {
                 drawEventIndicatorCircle(canvas, xStartPosition, yPosition, event.color)
             }
@@ -759,14 +769,15 @@ internal class CompactCalendarController(
     }
 
     // zero based indexes used internally so instead of returning range of 1-7 like calendar class
-    // it returns 0-6 where 0 is Sunday instead of 1
+// it returns 0-6 where 0 is Sunday instead of 1
     fun getDayOfWeek(calendar: Calendar): Int {
         var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - firstDayOfWeekToDraw
         dayOfWeek = if (dayOfWeek < 0) 7 + dayOfWeek else dayOfWeek
         return dayOfWeek
     }
 
-    fun drawMonth(canvas: Canvas, monthToDrawCalender: Calendar, offset: Int) {
+    fun drawMonth(canvas: Canvas, monthToDrawCalender: Calendar?, offset: Int) {
+        monthToDrawCalender ?: return
         drawEvents(canvas, monthToDrawCalender, offset)
 
         //offset by one because we want to start from Monday
@@ -806,12 +817,14 @@ internal class CompactCalendarController(
             if (dayRow == 0) {
                 // first row, so draw the first letter of the day
                 if (shouldDrawDaysHeader) {
-                    dayPaint.color = calenderTextColor
-                    dayPaint.typeface = Typeface.DEFAULT_BOLD
-                    dayPaint.style = Paint.Style.FILL
-                    dayPaint.color = calenderTextColor
-                    canvas.drawText(dayColumnNames[dayColumn], xPosition, paddingHeight.toFloat(), dayPaint)
-                    dayPaint.typeface = Typeface.DEFAULT
+                    dayPaint?.apply {
+                        color = calenderTextColor
+                        typeface = Typeface.DEFAULT_BOLD
+                        style = Paint.Style.FILL
+                        color = calenderTextColor
+                        canvas.drawText(dayColumnNames[dayColumn], xPosition, paddingHeight.toFloat(), this)
+                        typeface = Typeface.DEFAULT
+                    }
                 }
             } else {
                 val day = (dayRow - 1) * 7 + dayColumn + 1 - firstDayOfMonth
@@ -824,24 +837,26 @@ internal class CompactCalendarController(
                     drawDayCircleIndicator(currentDayIndicatorStyle, canvas, xPosition, yPosition, currentDayBackgroundColor)
                     defaultCalenderTextColorToUse = currentDayTextColor
                 }
-                if (day <= 0) {
-                    if (displayOtherMonthDays) {
-                        // Display day month before
-                        dayPaint.style = Paint.Style.FILL
-                        dayPaint.color = otherMonthDaysTextColor
-                        canvas.drawText((maximumPreviousMonthDay + day).toString(), xPosition, yPosition, dayPaint)
+                dayPaint?.apply {
+                    if (day <= 0) {
+                        if (displayOtherMonthDays) {
+                            // Display day month before
+                            style = Paint.Style.FILL
+                            color = otherMonthDaysTextColor
+                            canvas.drawText((maximumPreviousMonthDay + day).toString(), xPosition, yPosition, this)
+                        }
+                    } else if (day > maximumMonthDay) {
+                        if (displayOtherMonthDays) {
+                            // Display day month after
+                            style = Paint.Style.FILL
+                            color = otherMonthDaysTextColor
+                            canvas.drawText((day - maximumMonthDay).toString(), xPosition, yPosition, this)
+                        }
+                    } else {
+                        style = Paint.Style.FILL
+                        color = defaultCalenderTextColorToUse
+                        canvas.drawText(day.toString(), xPosition, yPosition, this)
                     }
-                } else if (day > maximumMonthDay) {
-                    if (displayOtherMonthDays) {
-                        // Display day month after
-                        dayPaint.style = Paint.Style.FILL
-                        dayPaint.color = otherMonthDaysTextColor
-                        canvas.drawText((day - maximumMonthDay).toString(), xPosition, yPosition, dayPaint)
-                    }
-                } else {
-                    dayPaint.style = Paint.Style.FILL
-                    dayPaint.color = defaultCalenderTextColorToUse
-                    canvas.drawText(day.toString(), xPosition, yPosition, dayPaint)
                 }
             }
             dayRow++
@@ -849,42 +864,48 @@ internal class CompactCalendarController(
     }
 
     private fun drawDayCircleIndicator(indicatorStyle: Int, canvas: Canvas, x: Float, y: Float, color: Int, circleScale: Float = 1f) {
-        val strokeWidth = dayPaint.strokeWidth
-        if (indicatorStyle == NO_FILL_LARGE_INDICATOR) {
-            dayPaint.strokeWidth = 2 * screenDensity
-            dayPaint.style = Paint.Style.STROKE
-        } else {
-            dayPaint.style = Paint.Style.FILL
+        dayPaint?.apply {
+            val strokeWidth = strokeWidth
+            if (indicatorStyle == NO_FILL_LARGE_INDICATOR) {
+                this.strokeWidth = 2 * screenDensity
+                style = Paint.Style.STROKE
+            } else {
+                style = Paint.Style.FILL
+            }
+            drawCircle(canvas, x, y, color, circleScale)
+            this.strokeWidth = strokeWidth
+            style = Paint.Style.FILL
         }
-        drawCircle(canvas, x, y, color, circleScale)
-        dayPaint.strokeWidth = strokeWidth
-        dayPaint.style = Paint.Style.FILL
     }
 
     // Draw Circle on certain days to highlight them
     private fun drawCircle(canvas: Canvas, x: Float, y: Float, color: Int, circleScale: Float) {
-        dayPaint.color = color
-        if (animationStatus == ANIMATE_INDICATORS) {
-            val maxRadius = circleScale * dayIndicatorRadius * 1.4f
-            drawCircle(canvas, if (growFactorIndicator > maxRadius) maxRadius else growFactorIndicator, x, y - textHeight / 6)
-        } else {
-            drawCircle(canvas, circleScale * dayIndicatorRadius, x, y - textHeight / 6)
+        dayPaint?.apply {
+            this.color = color
+            if (animationStatus == ANIMATE_INDICATORS) {
+                val maxRadius = circleScale * dayIndicatorRadius * 1.4f
+                drawCircle(canvas, if (growFactorIndicator > maxRadius) maxRadius else growFactorIndicator, x, y - textHeight / 6)
+            } else {
+                drawCircle(canvas, circleScale * dayIndicatorRadius, x, y - textHeight / 6)
+            }
         }
     }
 
     private fun drawEventIndicatorCircle(canvas: Canvas, x: Float, y: Float, color: Int) {
-        dayPaint.color = color
-        when (eventIndicatorStyle) {
-            SMALL_INDICATOR -> {
-                dayPaint.style = Paint.Style.FILL
-                drawCircle(canvas, smallIndicatorRadius, x, y)
-            }
-            NO_FILL_LARGE_INDICATOR -> {
-                dayPaint.style = Paint.Style.STROKE
-                drawDayCircleIndicator(NO_FILL_LARGE_INDICATOR, canvas, x, y, color)
-            }
-            FILL_LARGE_INDICATOR -> {
-                drawDayCircleIndicator(FILL_LARGE_INDICATOR, canvas, x, y, color)
+        dayPaint?.apply {
+            this.color = color
+            when (eventIndicatorStyle) {
+                SMALL_INDICATOR -> {
+                    style = Paint.Style.FILL
+                    drawCircle(canvas, smallIndicatorRadius, x, y)
+                }
+                NO_FILL_LARGE_INDICATOR -> {
+                    style = Paint.Style.STROKE
+                    drawDayCircleIndicator(NO_FILL_LARGE_INDICATOR, canvas, x, y, color)
+                }
+                FILL_LARGE_INDICATOR -> {
+                    drawDayCircleIndicator(FILL_LARGE_INDICATOR, canvas, x, y, color)
+                }
             }
         }
     }
@@ -904,4 +925,5 @@ internal class CompactCalendarController(
         private const val SNAP_VELOCITY_DIP_PER_SECOND = 400f
         private const val ANIMATION_SCREEN_SET_DURATION_MILLIS = 700f
     }
+
 }

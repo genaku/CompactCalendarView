@@ -18,6 +18,7 @@ import com.github.sundeepk.compactcalendarview.CompactCalendarView
 import com.github.sundeepk.compactcalendarview.domain.Event
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class CompactCalendarTab : Fragment() {
     private val currentCalender = Calendar.getInstance(Locale.getDefault())
@@ -225,13 +226,13 @@ class CompactCalendarTab : Fragment() {
         }
     }
 
-    private fun getEvents(timeInMillis: Long, day: Int): List<Event> {
+    private fun getEvents(timeInMillis: Long, day: Int): ArrayList<Event> {
         return when {
-            day < 2 -> Arrays.asList(Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + Date(timeInMillis)))
-            day in 3..4 -> Arrays.asList(
+            day < 2 -> arrayListOf(Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + Date(timeInMillis)))
+            day in 3..4 -> arrayListOf(
                     Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + Date(timeInMillis)),
                     Event(Color.argb(255, 100, 68, 65), timeInMillis, "Event 2 at " + Date(timeInMillis)))
-            else -> Arrays.asList(
+            else -> arrayListOf(
                     Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + Date(timeInMillis)),
                     Event(Color.argb(255, 100, 68, 65), timeInMillis, "Event 2 at " + Date(timeInMillis)),
                     Event(Color.argb(255, 70, 68, 65), timeInMillis, "Event 3 at " + Date(timeInMillis)))

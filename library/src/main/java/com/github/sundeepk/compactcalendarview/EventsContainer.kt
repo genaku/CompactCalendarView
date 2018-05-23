@@ -6,13 +6,13 @@ import java.util.*
 
 class EventsContainer(private val eventsCalendar: Calendar) {
 
-    private val eventsByMonthAndYearMap = HashMap<String, ArrayList<Events>>()
-    private val eventsComparator = EventComparator()
+    private val mEventsByMonthAndYearMap = HashMap<String, ArrayList<Events>>()
+    private val mEventsComparator = EventComparator()
 
     fun addEvent(event: Event) {
         eventsCalendar.timeInMillis = event.timeInMillis
         val key = getKeyForCalendarEvent(eventsCalendar)
-        var eventsForMonth: ArrayList<Events>? = eventsByMonthAndYearMap[key]
+        var eventsForMonth: ArrayList<Events>? = mEventsByMonthAndYearMap[key]
         if (eventsForMonth == null) {
             eventsForMonth = ArrayList()
         }
@@ -24,14 +24,14 @@ class EventsContainer(private val eventsCalendar: Calendar) {
         } else {
             eventsForTargetDay.events.add(event)
         }
-        eventsByMonthAndYearMap[key] = eventsForMonth
+        mEventsByMonthAndYearMap[key] = eventsForMonth
     }
 
     fun removeAllEvents() {
-        eventsByMonthAndYearMap.clear()
+        mEventsByMonthAndYearMap.clear()
     }
 
-    fun addEvents(events: List<Event>) {
+    fun addEvents(events: ArrayList<Event>) {
         val count = events.size
         for (i in 0 until count) {
             addEvent(events[i])
@@ -48,20 +48,20 @@ class EventsContainer(private val eventsCalendar: Calendar) {
     }
 
     fun getEventsForMonthAndYear(month: Int, year: Int): ArrayList<Events> {
-        return eventsByMonthAndYearMap[year.toString() + "_" + month] ?: ArrayList()
+        return mEventsByMonthAndYearMap[year.toString() + "_" + month] ?: ArrayList()
     }
 
     fun getEventsForMonth(eventTimeInMillis: Long): ArrayList<Event> {
         eventsCalendar.timeInMillis = eventTimeInMillis
         val keyForCalendarEvent = getKeyForCalendarEvent(eventsCalendar)
-        val events = eventsByMonthAndYearMap[keyForCalendarEvent]
+        val events = mEventsByMonthAndYearMap[keyForCalendarEvent]
         val allEventsForMonth = ArrayList<Event>()
         if (events != null) {
             for (eve in events) {
                 allEventsForMonth.addAll(eve.events)
             }
         }
-        Collections.sort(allEventsForMonth, eventsComparator)
+        Collections.sort(allEventsForMonth, mEventsComparator)
         return allEventsForMonth
     }
 
@@ -69,7 +69,7 @@ class EventsContainer(private val eventsCalendar: Calendar) {
         eventsCalendar.timeInMillis = eventTimeInMillis
         val dayInMonth = eventsCalendar.get(Calendar.DAY_OF_MONTH)
         val keyForCalendarEvent = getKeyForCalendarEvent(eventsCalendar)
-        val eventsForMonthsAndYear = eventsByMonthAndYearMap[keyForCalendarEvent]
+        val eventsForMonthsAndYear = mEventsByMonthAndYearMap[keyForCalendarEvent]
         if (eventsForMonthsAndYear != null) {
             for (events in eventsForMonthsAndYear) {
                 eventsCalendar.timeInMillis = events.timeInMillis
@@ -86,7 +86,7 @@ class EventsContainer(private val eventsCalendar: Calendar) {
         eventsCalendar.timeInMillis = epochMillis
         val dayInMonth = eventsCalendar.get(Calendar.DAY_OF_MONTH)
         val key = getKeyForCalendarEvent(eventsCalendar)
-        val eventsForMonthAndYear = eventsByMonthAndYearMap[key]
+        val eventsForMonthAndYear = mEventsByMonthAndYearMap[key]
         if (eventsForMonthAndYear != null) {
             val calendarDayEventIterator = eventsForMonthAndYear.iterator()
             while (calendarDayEventIterator.hasNext()) {
@@ -99,7 +99,7 @@ class EventsContainer(private val eventsCalendar: Calendar) {
                 }
             }
             if (eventsForMonthAndYear.isEmpty()) {
-                eventsByMonthAndYearMap.remove(key)
+                mEventsByMonthAndYearMap.remove(key)
             }
         }
     }
@@ -107,7 +107,7 @@ class EventsContainer(private val eventsCalendar: Calendar) {
     fun removeEvent(event: Event) {
         eventsCalendar.timeInMillis = event.timeInMillis
         val key = getKeyForCalendarEvent(eventsCalendar)
-        val eventsForMonthAndYear = eventsByMonthAndYearMap[key]
+        val eventsForMonthAndYear = mEventsByMonthAndYearMap[key]
         if (eventsForMonthAndYear != null) {
             val eventsForMonthYrItr = eventsForMonthAndYear.iterator()
             while (eventsForMonthYrItr.hasNext()) {
@@ -123,7 +123,7 @@ class EventsContainer(private val eventsCalendar: Calendar) {
                 }
             }
             if (eventsForMonthAndYear.isEmpty()) {
-                eventsByMonthAndYearMap.remove(key)
+                mEventsByMonthAndYearMap.remove(key)
             }
         }
     }

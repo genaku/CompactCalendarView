@@ -177,7 +177,7 @@ class CompactCalendarView(context: Context, attrs: AttributeSet? = null, defStyl
     /**
      * Adds multiple events to the calendar and invalidates the view once all events are added.
      */
-    fun addEvents(events: List<Event>) {
+    fun addEvents(events: ArrayList<Event>) {
         compactCalendarController.addEvents(events)
         invalidate()
     }
@@ -187,7 +187,7 @@ class CompactCalendarView(context: Context, attrs: AttributeSet? = null, defStyl
      * @param date
      * @return
      */
-    fun getEvents(date: Date): List<Event>? {
+    fun getEvents(date: Date): ArrayList<Event>? {
         return compactCalendarController.getCalendarEventsFor(date.time)
     }
 
@@ -196,7 +196,7 @@ class CompactCalendarView(context: Context, attrs: AttributeSet? = null, defStyl
      * @param epochMillis
      * @return
      */
-    fun getEvents(epochMillis: Long): List<Event>? {
+    fun getEvents(epochMillis: Long): ArrayList<Event>? {
         return compactCalendarController.getCalendarEventsFor(epochMillis)
     }
 

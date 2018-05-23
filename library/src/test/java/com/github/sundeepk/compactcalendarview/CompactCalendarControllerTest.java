@@ -17,15 +17,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.DateFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import static com.github.sundeepk.compactcalendarview.CompactCalendarHelper.getDayEventWith2EventsPerDay;
-import static com.github.sundeepk.compactcalendarview.CompactCalendarHelper.getDayEventWithMultipleEventsPerDay;
-import static com.github.sundeepk.compactcalendarview.CompactCalendarHelper.getEvents;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyFloat;
@@ -65,8 +63,13 @@ public class CompactCalendarControllerTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testItThrowsWhenDayColumnsIsNotLengthSeven(){
-        String[] dayNames = {"Mon", "Tue", "Wed", "Thur", "Fri"};
+    public void testItThrowsWhenDayColumnsIsNotLengthSeven() {
+        ArrayList dayNames = new ArrayList();
+        dayNames.add("Mon");
+        dayNames.add("Tue");
+        dayNames.add("Wed");
+        dayNames.add("Thur");
+        dayNames.add("Fri");
         underTest.setDayColumnNames(dayNames);
     }
 
@@ -127,7 +130,15 @@ public class CompactCalendarControllerTest {
         when(calendar.get(Calendar.MONTH)).thenReturn(1);
         when(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)).thenReturn(28);
 
-        String[] dayNames = {"Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"};
+        ArrayList dayNames = new ArrayList<String>();
+        dayNames.add("Mon");
+        dayNames.add("Tue");
+        dayNames.add("Wed");
+        dayNames.add("Thur");
+        dayNames.add("Fri");
+        dayNames.add("Sat");
+        dayNames.add("Sun");
+
         underTest.setGrowProgress(1000); //set grow progress so that it simulates the calendar being open
         underTest.setDayColumnNames(dayNames);
         underTest.drawMonth(canvas, calendar, 0);
@@ -294,7 +305,7 @@ public class CompactCalendarControllerTest {
         //Sun, 07 Jun 2015 18:20:51 GMT
         //get 30 events in total
         int numberOfDaysWithEvents = 30;
-        List<Events> events = getEvents(0, numberOfDaysWithEvents, 1433701251000L);
+        ArrayList<Events> events = CompactCalendarHelper.INSTANCE.getEvents(0, numberOfDaysWithEvents, 1433701251000L);
         when(eventsContainer.getEventsForMonthAndYear(5, 2015)).thenReturn(events);
         when(calendar.get(Calendar.MONTH)).thenReturn(5);
         when(calendar.get(Calendar.YEAR)).thenReturn(2015);
@@ -312,7 +323,7 @@ public class CompactCalendarControllerTest {
         //Sun, 07 Jun 2015 18:20:51 GMT
         //get 60 events in total
         int numberOfDaysWithEvents = 30;
-        List<Events> events = getDayEventWith2EventsPerDay(0, numberOfDaysWithEvents, 1433701251000L);
+        ArrayList<Events> events = CompactCalendarHelper.INSTANCE.getDayEventWith2EventsPerDay(0, numberOfDaysWithEvents, 1433701251000L);
         when(eventsContainer.getEventsForMonthAndYear(5, 2015)).thenReturn(events);
         when(calendar.get(Calendar.MONTH)).thenReturn(5);
         when(calendar.get(Calendar.YEAR)).thenReturn(2015);
@@ -330,7 +341,7 @@ public class CompactCalendarControllerTest {
         //Sun, 07 Jun 2015 18:20:51 GMT
         //get 120 events in total but only draw 3 event indicators per a day
         int numberOfDaysWithEvents = 30;
-        List<Events> events = getDayEventWithMultipleEventsPerDay(0, numberOfDaysWithEvents, 1433701251000L);
+        ArrayList<Events> events = CompactCalendarHelper.INSTANCE.getDayEventWithMultipleEventsPerDay(0, numberOfDaysWithEvents, 1433701251000L);
         when(eventsContainer.getEventsForMonthAndYear(5, 2015)).thenReturn(events);
         when(calendar.get(Calendar.MONTH)).thenReturn(5);
         when(calendar.get(Calendar.YEAR)).thenReturn(2015);
@@ -355,7 +366,7 @@ public class CompactCalendarControllerTest {
         int todayYear = todayCalendar.get(Calendar.YEAR);
 
         //get events for every day in the month
-        List<Events> events = getEvents(0, numberOfDaysInMonth, todayCalendar.getTimeInMillis());
+        ArrayList<Events> events = CompactCalendarHelper.INSTANCE.getEvents(0, numberOfDaysInMonth, todayCalendar.getTimeInMillis());
         when(eventsContainer.getEventsForMonthAndYear(todayMonth, todayYear)).thenReturn(events);
         when(calendar.get(Calendar.MONTH)).thenReturn(todayMonth);
         when(calendar.get(Calendar.YEAR)).thenReturn(todayYear);
@@ -373,7 +384,7 @@ public class CompactCalendarControllerTest {
         long selectedDayTimestamp = 1433701251000L;
         //get 30 events in total
         int numberOfDaysWithEvents = 30;
-        List<Events> events = getEvents(0, numberOfDaysWithEvents, selectedDayTimestamp);
+        ArrayList<Events> events = CompactCalendarHelper.INSTANCE.getEvents(0, numberOfDaysWithEvents, selectedDayTimestamp);
         when(eventsContainer.getEventsForMonthAndYear(5, 2015)).thenReturn(events);
         when(calendar.get(Calendar.MONTH)).thenReturn(5);
         when(calendar.get(Calendar.YEAR)).thenReturn(2015);
@@ -395,7 +406,7 @@ public class CompactCalendarControllerTest {
         int todayYear = todayCalendar.get(Calendar.YEAR);
 
         //get events for every day in the month
-        List<Events> events = getEvents(0, numberOfDaysInMonth, todayCalendar.getTimeInMillis());
+        ArrayList<Events> events = CompactCalendarHelper.INSTANCE.getEvents(0, numberOfDaysInMonth, todayCalendar.getTimeInMillis());
         when(eventsContainer.getEventsForMonthAndYear(todayMonth, todayYear)).thenReturn(events);
         when(calendar.get(Calendar.MONTH)).thenReturn(todayMonth);
         when(calendar.get(Calendar.YEAR)).thenReturn(todayYear);
@@ -422,7 +433,7 @@ public class CompactCalendarControllerTest {
 
     @Test
     public void testItAddsEvent(){
-        Event event = CompactCalendarHelper.getOneEventPerDayForMonth(0, 30, 1433701251000L).get(0);
+        Event event = CompactCalendarHelper.INSTANCE.getOneEventPerDayForMonth(0, 30, 1433701251000L).get(0);
         underTest.addEvent(event);
         verify(eventsContainer).addEvent(event);
         verifyNoMoreInteractions(eventsContainer);
@@ -430,7 +441,7 @@ public class CompactCalendarControllerTest {
 
     @Test
     public void testItAddsEvents(){
-        List<Event> events = CompactCalendarHelper.getOneEventPerDayForMonth(0, 30, 1433701251000L);
+        ArrayList<Event> events = CompactCalendarHelper.INSTANCE.getOneEventPerDayForMonth(0, 30, 1433701251000L);
         underTest.addEvents(events);
         verify(eventsContainer).addEvents(events);
         verifyNoMoreInteractions(eventsContainer);
@@ -438,7 +449,7 @@ public class CompactCalendarControllerTest {
 
     @Test
     public void testItRemovesEvent(){
-        Event event = CompactCalendarHelper.getOneEventPerDayForMonth(0, 30, 1433701251000L).get(0);
+        Event event = CompactCalendarHelper.INSTANCE.getOneEventPerDayForMonth(0, 30, 1433701251000L).get(0);
         underTest.removeEvent(event);
         verify(eventsContainer).removeEvent(event);
         verifyNoMoreInteractions(eventsContainer);
@@ -446,7 +457,7 @@ public class CompactCalendarControllerTest {
 
     @Test
     public void testItRemovesEvents(){
-        List<Event> events = CompactCalendarHelper.getOneEventPerDayForMonth(0, 30, 1433701251000L);
+        List<Event> events = CompactCalendarHelper.INSTANCE.getOneEventPerDayForMonth(0, 30, 1433701251000L);
         underTest.removeEvents(events);
         verify(eventsContainer).removeEvents(events);
         verifyNoMoreInteractions(eventsContainer);
@@ -474,11 +485,11 @@ public class CompactCalendarControllerTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testItThrowsWhenZeroIsUsedAsFirstDayOfWeek(){
+    public void testItThrowsWhenZeroIsUsedAsFirstDayOfWeek() {
         underTest.setFirstDayOfWeek(0);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testItThrowsWhenValuesGreaterThanSevenIsUsedAsFirstDayOfWeek(){
         underTest.setFirstDayOfWeek(8);
     }
