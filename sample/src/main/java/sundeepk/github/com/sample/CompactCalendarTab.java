@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,17 +47,17 @@ public class CompactCalendarTab extends Fragment {
 
         final List<String> mutableBookings = new ArrayList<>();
 
-        final ListView bookingsListView = (ListView) v.findViewById(R.id.bookings_listview);
-        final Button showPreviousMonthBut = (Button) v.findViewById(R.id.prev_button);
-        final Button showNextMonthBut = (Button) v.findViewById(R.id.next_button);
-        final Button slideCalendarBut = (Button) v.findViewById(R.id.slide_calendar);
-        final Button showCalendarWithAnimationBut = (Button) v.findViewById(R.id.show_with_animation_calendar);
-        final Button setLocaleBut = (Button) v.findViewById(R.id.set_locale);
-        final Button removeAllEventsBut = (Button) v.findViewById(R.id.remove_all_events);
+        final ListView bookingsListView = v.findViewById(R.id.bookings_listview);
+        final Button showPreviousMonthBut = v.findViewById(R.id.prev_button);
+        final Button showNextMonthBut = v.findViewById(R.id.next_button);
+        final Button slideCalendarBut = v.findViewById(R.id.slide_calendar);
+        final Button showCalendarWithAnimationBut = v.findViewById(R.id.show_with_animation_calendar);
+        final Button setLocaleBut = v.findViewById(R.id.set_locale);
+        final Button removeAllEventsBut = v.findViewById(R.id.remove_all_events);
 
         final ArrayAdapter adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, mutableBookings);
         bookingsListView.setAdapter(adapter);
-        compactCalendarView = (CompactCalendarView) v.findViewById(R.id.compactcalendar_view);
+        compactCalendarView = v.findViewById(R.id.compactcalendar_view);
 
         // below allows you to configure color for the current day in the month
         // compactCalendarView.setCurrentDayBackgroundColor(getResources().getColor(R.color.black));
@@ -85,7 +85,7 @@ public class CompactCalendarTab extends Fragment {
         // compactCalendarView.setShouldShowMondayAsFirstDay(false);
 
         //set initial title
-        toolbar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         toolbar.setTitle(dateFormatForMonth.format(compactCalendarView.getFirstDayOfCurrentMonth()));
 
         //set title on calendar scroll
@@ -211,7 +211,7 @@ public class CompactCalendarTab extends Fragment {
     }
 
     private void openCalendarOnCreate(View v) {
-        final RelativeLayout layout = (RelativeLayout)v.findViewById(R.id.main_content);
+        final RelativeLayout layout = v.findViewById(R.id.main_content);
         ViewTreeObserver vto = layout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
