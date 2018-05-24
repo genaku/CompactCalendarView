@@ -15,10 +15,12 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 import android.widget.OverScroller;
+
 import com.github.sundeepk.compactcalendarview.domain.Event;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -26,7 +28,6 @@ import static com.github.sundeepk.compactcalendarview.CompactCalendarView.Compac
 import static com.github.sundeepk.compactcalendarview.CompactCalendarView.FILL_LARGE_INDICATOR;
 import static com.github.sundeepk.compactcalendarview.CompactCalendarView.NO_FILL_LARGE_INDICATOR;
 import static com.github.sundeepk.compactcalendarview.CompactCalendarView.SMALL_INDICATOR;
-
 
 class CompactCalendarController {
 
@@ -46,7 +47,7 @@ class CompactCalendarController {
     private int paddingWidth = 40;
     private int paddingHeight = 40;
     private int textHeight;
-    private int textWidth;
+    //    private int textWidth;
     private int widthPerDay;
     private int monthsScrolledSoFar;
     private int heightPerDay;
@@ -94,7 +95,7 @@ class CompactCalendarController {
     private Paint dayPaint = new Paint();
     private Paint background = new Paint();
     private Rect textSizeRect;
-    private String[] dayColumnNames;
+    private ArrayList<String> dayColumnNames;
 
     // colors
     private int multiEventIndicatorColor;
@@ -190,7 +191,7 @@ class CompactCalendarController {
         dayPaint.setColor(calenderTextColor);
         dayPaint.getTextBounds("31", 0, "31".length(), textSizeRect);
         textHeight = textSizeRect.height() * 3;
-        textWidth = textSizeRect.width() * 2;
+//        textWidth = textSizeRect.width() * 2;
 
         todayCalender.setTime(new Date());
         setToMidnight(todayCalender);
@@ -369,11 +370,11 @@ class CompactCalendarController {
 
     void setUseWeekDayAbbreviation(boolean useThreeLetterAbbreviation) {
         this.useThreeLetterAbbreviation = useThreeLetterAbbreviation;
-        this.dayColumnNames = WeekUtils.getWeekdayNames(locale, firstDayOfWeekToDraw, this.useThreeLetterAbbreviation);
+        this.dayColumnNames = WeekUtils.Companion.getWeekdayNames(locale, firstDayOfWeekToDraw, this.useThreeLetterAbbreviation);
     }
 
-    void setDayColumnNames(String[] dayColumnNames) {
-        if (dayColumnNames == null || dayColumnNames.length != 7) {
+    void setDayColumnNames(ArrayList<String> dayColumnNames) {
+        if (dayColumnNames == null || dayColumnNames.size() != 7) {
             throw new IllegalArgumentException("Column names cannot be null and must contain a value for each day of the week");
         }
         this.dayColumnNames = dayColumnNames;
@@ -639,15 +640,15 @@ class CompactCalendarController {
         eventsContainer.addEvent(event);
     }
 
-    void addEvents(List<Event> events) {
+    void addEvents(ArrayList<Event> events) {
        eventsContainer.addEvents(events);
     }
 
-    List<Event> getCalendarEventsFor(long epochMillis) {
+    ArrayList<Event> getCalendarEventsFor(long epochMillis) {
         return eventsContainer.getEventsFor(epochMillis);
     }
 
-    List<Event> getCalendarEventsForMonth(long epochMillis) {
+    ArrayList<Event> getCalendarEventsForMonth(long epochMillis) {
         return eventsContainer.getEventsForMonth(epochMillis);
     }
 
@@ -659,7 +660,7 @@ class CompactCalendarController {
        eventsContainer.removeEvent(event);
     }
 
-    void removeEvents(List<Event> events) {
+    void removeEvents(ArrayList<Event> events) {
        eventsContainer.removeEvents(events);
     }
 
@@ -728,7 +729,7 @@ class CompactCalendarController {
 
     void drawEvents(Canvas canvas, Calendar currentMonthToDrawCalender, int offset) {
         int currentMonth = currentMonthToDrawCalender.get(Calendar.MONTH);
-        List<Events> uniqEvents = eventsContainer.getEventsForMonthAndYear(currentMonth, currentMonthToDrawCalender.get(Calendar.YEAR));
+        ArrayList<Events> uniqEvents = eventsContainer.getEventsForMonthAndYear(currentMonth, currentMonthToDrawCalender.get(Calendar.YEAR));
 
         boolean shouldDrawCurrentDayCircle = currentMonth == todayCalender.get(Calendar.MONTH);
         boolean shouldDrawSelectedDayCircle = currentMonth == currentCalender.get(Calendar.MONTH);
@@ -760,7 +761,7 @@ class CompactCalendarController {
                     continue;
                 }
 
-                List<Event> eventsList = events.getEvents();
+                ArrayList<Event> eventsList = events.getEvents();
                 int dayOfMonth = eventsCalendar.get(Calendar.DAY_OF_MONTH);
                 int eventYear = eventsCalendar.get(Calendar.YEAR);
                 boolean isSameDayAsCurrentDay = shouldDrawCurrentDayCircle && (todayDayOfMonth == dayOfMonth) && (eventYear == currentYear);
@@ -793,12 +794,12 @@ class CompactCalendarController {
         }
     }
 
-    private void drawSingleEvent(Canvas canvas, float xPosition, float yPosition, List<Event> eventsList) {
+    private void drawSingleEvent(Canvas canvas, float xPosition, float yPosition, ArrayList<Event> eventsList) {
         Event event = eventsList.get(0);
         drawEventIndicatorCircle(canvas, xPosition, yPosition, event.getColor());
     }
 
-    private void drawTwoEvents(Canvas canvas, float xPosition, float yPosition, List<Event> eventsList) {
+    private void drawTwoEvents(Canvas canvas, float xPosition, float yPosition, ArrayList<Event> eventsList) {
         //draw fist event just left of center
         drawEventIndicatorCircle(canvas, xPosition + (xIndicatorOffset * -1), yPosition, eventsList.get(0).getColor());
         //draw second event just right of center
@@ -806,7 +807,7 @@ class CompactCalendarController {
     }
 
     //draw 2 eventsByMonthAndYearMap followed by plus indicator to show there are more than 2 eventsByMonthAndYearMap
-    private void drawEventsWithPlus(Canvas canvas, float xPosition, float yPosition, List<Event> eventsList) {
+    private void drawEventsWithPlus(Canvas canvas, float xPosition, float yPosition, ArrayList<Event> eventsList) {
         // k = size() - 1, but since we don't want to draw more than 2 indicators, we just stop after 2 iterations so we can just hard k = -2 instead
         // we can use the below loop to draw arbitrary eventsByMonthAndYearMap based on the current screen size, for example, larger screens should be able to
         // display more than 2 evens before displaying plus indicator, but don't draw more than 3 indicators for now
@@ -859,7 +860,7 @@ class CompactCalendarController {
                     dayColumn++;
                 }
             }
-            if (dayColumn == dayColumnNames.length) {
+            if (dayColumn == dayColumnNames.size()) {
                 break;
             }
             float xPosition = widthPerDay * dayColumn + paddingWidth + paddingLeft + accumulatedScrollOffset.x + offset - paddingRight;
@@ -875,7 +876,7 @@ class CompactCalendarController {
                     dayPaint.setTypeface(Typeface.DEFAULT_BOLD);
                     dayPaint.setStyle(Paint.Style.FILL);
                     dayPaint.setColor(calenderTextColor);
-                    canvas.drawText(dayColumnNames[dayColumn], xPosition, paddingHeight, dayPaint);
+                    canvas.drawText(dayColumnNames.get(dayColumn), xPosition, paddingHeight, dayPaint);
                     dayPaint.setTypeface(Typeface.DEFAULT);
                 }
             } else {
@@ -934,7 +935,7 @@ class CompactCalendarController {
         dayPaint.setColor(color);
         if (animationStatus == ANIMATE_INDICATORS) {
             float maxRadius = circleScale * bigCircleIndicatorRadius * 1.4f;
-            drawCircle(canvas, growfactorIndicator > maxRadius ? maxRadius: growfactorIndicator, x, y - (textHeight / 6));
+            drawCircle(canvas, growfactorIndicator > maxRadius ? maxRadius : growfactorIndicator, x, y - (textHeight / 6f));
         } else {
             drawCircle(canvas, circleScale * bigCircleIndicatorRadius, x, y - (textHeight / 6));
         }

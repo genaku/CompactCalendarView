@@ -15,9 +15,9 @@ import android.widget.OverScroller;
 
 import com.github.sundeepk.compactcalendarview.domain.Event;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -32,14 +32,20 @@ public class CompactCalendarView extends View {
     private GestureDetectorCompat gestureDetector;
     private boolean horizontalScrollEnabled = true;
 
-    public interface CompactCalendarViewListener {
-        public void onDayClick(Date dateClicked);
-        public void onMonthScroll(Date firstDayOfNewMonth);
+    /*
+    Sets the name for each day of the week. No attempt is made to adjust width or text size based on the length of each day name.
+    Works best with 3-4 characters for each day.
+     */
+    public void setDayColumnNames(ArrayList<String> dayColumnNames) {
+        compactCalendarController.setDayColumnNames(dayColumnNames);
     }
 
-    public interface CompactCalendarAnimationListener {
-        public void onOpened();
-        public void onClosed();
+    /**
+     * Adds multiple events to the calendar and invalidates the view once all events are added.
+     */
+    public void addEvents(ArrayList<Event> events) {
+        compactCalendarController.addEvents(events);
+        invalidate();
     }
 
     private final GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
@@ -126,12 +132,13 @@ public class CompactCalendarView extends View {
         invalidate();
     }
 
-    /*
-    Sets the name for each day of the week. No attempt is made to adjust width or text size based on the length of each day name.
-    Works best with 3-4 characters for each day.
+    /**
+     * Fetches the events for the date passed in
+     * @param date
+     * @return
      */
-    public void setDayColumnNames(String[] dayColumnNames){
-        compactCalendarController.setDayColumnNames(dayColumnNames);
+    public ArrayList<Event> getEvents(Date date) {
+        return compactCalendarController.getCalendarEventsFor(date.getTime());
     }
 
     public void setFirstDayOfWeek(int dayOfWeek){
@@ -209,28 +216,11 @@ public class CompactCalendarView extends View {
     }
 
     /**
-     * Adds multiple events to the calendar and invalidates the view once all events are added.
-     */
-    public void addEvents(List<Event> events){
-        compactCalendarController.addEvents(events);
-        invalidate();
-    }
-
-    /**
-     * Fetches the events for the date passed in
-     * @param date
-     * @return
-     */
-    public List<Event> getEvents(Date date){
-        return compactCalendarController.getCalendarEventsFor(date.getTime());
-    }
-
-    /**
      * Fetches the events for the epochMillis passed in
      * @param epochMillis
      * @return
      */
-    public List<Event> getEvents(long epochMillis){
+    public ArrayList<Event> getEvents(long epochMillis) {
         return compactCalendarController.getCalendarEventsFor(epochMillis);
     }
 
@@ -239,7 +229,7 @@ public class CompactCalendarView extends View {
      * @param epochMillis
      * @return
      */
-    public List<Event> getEventsForMonth(long epochMillis){
+    public ArrayList<Event> getEventsForMonth(long epochMillis) {
         return compactCalendarController.getCalendarEventsForMonth(epochMillis);
     }
 
@@ -248,8 +238,22 @@ public class CompactCalendarView extends View {
      * @param date
      * @return
      */
-    public List<Event> getEventsForMonth(Date date){
+    public ArrayList<Event> getEventsForMonth(Date date) {
         return compactCalendarController.getCalendarEventsForMonth(date.getTime());
+    }
+
+    /**
+     * Removes multiple events from the calendar and invalidates the view once all events are added.
+     */
+    public void removeEvents(ArrayList<Event> events) {
+        compactCalendarController.removeEvents(events);
+        invalidate();
+    }
+
+    public interface CompactCalendarViewListener {
+        void onDayClick(Date dateClicked);
+
+        void onMonthScroll(Date firstDayOfNewMonth);
     }
 
     /**
@@ -287,12 +291,10 @@ public class CompactCalendarView extends View {
         }
     }
 
-    /**
-     * Removes multiple events from the calendar and invalidates the view once all events are added.
-     */
-    public void removeEvents(List<Event> events){
-        compactCalendarController.removeEvents(events);
-        invalidate();
+    public interface CompactCalendarAnimationListener {
+        void onOpened();
+
+        void onClosed();
     }
 
     /**
