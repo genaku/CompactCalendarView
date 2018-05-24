@@ -41,11 +41,11 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:layout_below="@+id/compactcalendar_view"
-            android:text="Change Locale"
+            android:id="@+id/go_today"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/set_locale" />
+            android:layout_below="@+id/compactcalendar_view"
+            android:text="Today" />
 
         <Button
             android:layout_below="@+id/compactcalendar_view"
