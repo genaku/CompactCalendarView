@@ -5,7 +5,7 @@
                 android:animateLayoutChanges="true"
                 android:orientation="vertical"
                 android:id="@+id/parent"
-                tools:context=".MainActivity">
+    tools:context="genaku.github.com.sample.MainActivity">
 
     <include
         android:id="@+id/tool_bar"
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         />
 
-    <sundeepk.github.com.sample.SlidingTabLayout
+    <genaku.github.com.sample.SlidingTabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

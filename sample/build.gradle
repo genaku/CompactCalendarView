@@ -20,12 +20,12 @@ android {
     compileSdkVersion 27
 
     defaultConfig {
-        applicationId "sundeepk.github.com.sample"
+        applicationId "genaku.github.com.sample"
         minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "sundeepk.github.com.sample.TestRunner"
+        testInstrumentationRunner "genaku.github.com.sample.TestRunner"
     }
     buildTypes {
         release {

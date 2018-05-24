@@ -2,7 +2,7 @@
 CompactCalendarView is a simple calendar view which provides scrolling between months. It's based on Java's Date and Calendar classes. It provides a simple api to query for dates and listeners for specific events.  For example, when the calendar has scrolled to a new month or a day has been selected.
 Still under active development.
 
-<img src="https://github.com/SundeepK/CompactCalendarView/blob/master/images/compact-calendar-view-example-multi-events.png" width="500">
+<img src="https://github.com/genaku/CompactCalendarView/blob/master/images/compact-calendar-view-example-multi-events.png" width="500">
 
 # Contributing  
 Please raise an issue of the requirement so that a discussion can take before any code is written, even if you intend to raise a pull request. Please see setup for testing.
@@ -150,24 +150,18 @@ It's possible to set the locale so that weekday column names are automatically s
         compactCalendarView.setUseThreeLetterAbbreviation(true);
 ```
 
-<img src="https://github.com/SundeepK/CompactCalendarView/blob/master/images/chinese-locale-daynames.png" width="400">
+<img src="https://github.com/genaku/CompactCalendarView/blob/master/images/chinese-locale-daynames.png" width="400">
 
 ```gradle
 dependencies {
-    compile 'com.github.sundeepk:compact-calendar-view:2.0.2.3'
-}
-```
-
-RTL support beta for right-to-left languages
-```gradle
-dependencies {
-    compile 'com.github.sundeepk:compact-calendar-view:2.0.3-beta'
+    implementation 'com.github.genaku:compact-calendar-view:2.1'
 }
 ```
 
 ```
 The MIT License (MIT)
 
+Copyright (c) [2018] [Gennadiy Kuchergin]
 Copyright (c) [2017] [Sundeepk]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
