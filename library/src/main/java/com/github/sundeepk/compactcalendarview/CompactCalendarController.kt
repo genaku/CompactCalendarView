@@ -519,7 +519,7 @@ internal class CompactCalendarController(
         }
     }
 
-    private fun scrollNextMonth() {
+    fun scrollNextMonth() {
         mLastAutoScrollFromFling = System.currentTimeMillis()
         mMonthsScrolledSoFar--
         performScroll()
@@ -527,7 +527,7 @@ internal class CompactCalendarController(
         performMonthScrollCallback()
     }
 
-    private fun scrollPreviousMonth() {
+    fun scrollPreviousMonth() {
         mLastAutoScrollFromFling = System.currentTimeMillis()
         mMonthsScrolledSoFar++
         performScroll()
@@ -547,6 +547,22 @@ internal class CompactCalendarController(
     }
 
     fun setCurrentDate(dateTimeMonth: Date) {
+        mDistanceX = 0f
+        mMonthsScrolledSoFar = 0
+        mAccumulatedScrollOffset.x = 0f
+        scroller.startScroll(0, 0, 0, 0)
+        mCurrentDate = Date(dateTimeMonth.time)
+        mCurrentCalender.time = mCurrentDate
+        mTodayCalender = Calendar.getInstance(timeZone, locale)
+        setToMidnight(mCurrentCalender)
+    }
+
+    fun scrollToDate(dateTimeMonth: Date) {
+        if (dateTimeMonth.year == mCurrentDate.year && dateTimeMonth.month == mCurrentDate.month) {
+            setCurrentDate(dateTimeMonth)
+            return
+        }
+        // TODO scroll to requested month
         mDistanceX = 0f
         mMonthsScrolledSoFar = 0
         mAccumulatedScrollOffset.x = 0f

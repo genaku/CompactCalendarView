@@ -157,6 +157,11 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
         invalidate()
     }
 
+    fun scrollToDate(dateTimeMonth: Date) {
+        mCompactCalendarController.scrollToDate(dateTimeMonth)
+        invalidate()
+    }
+
     fun setShouldDrawDaysHeader(shouldDrawDaysHeader: Boolean) {
         mCompactCalendarController.setShouldDrawDaysHeader(shouldDrawDaysHeader)
     }
@@ -324,6 +329,16 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
 
     fun showPreviousMonth() {
         mCompactCalendarController.showPreviousMonth()
+        invalidate()
+    }
+
+    fun scrollNextMonth() {
+        mCompactCalendarController.scrollNextMonth()
+        invalidate()
+    }
+
+    fun scrollPreviousMonth() {
+        mCompactCalendarController.scrollPreviousMonth()
         invalidate()
     }
 

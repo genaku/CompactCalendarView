@@ -28,7 +28,7 @@ class CompactCalendarTab : Fragment() {
     private lateinit var compactCalendarView: CompactCalendarView
     private var toolbar: ActionBar? = null
 
-    private val calendarShowLis: View.OnClickListener
+    private val calendarShowListener: View.OnClickListener
         get() = View.OnClickListener {
             if (!compactCalendarView.isAnimating) {
                 if (mShouldShow) {
@@ -40,7 +40,7 @@ class CompactCalendarTab : Fragment() {
             }
         }
 
-    private val calendarExposeLis: View.OnClickListener
+    private val calendarExposeListener: View.OnClickListener
         get() = View.OnClickListener {
             if (!compactCalendarView.isAnimating) {
                 if (mShouldShow) {
@@ -118,14 +118,14 @@ class CompactCalendarTab : Fragment() {
             }
         })
 
-        showPreviousMonthBut.setOnClickListener { compactCalendarView.showPreviousMonth() }
+        showPreviousMonthBut.setOnClickListener { compactCalendarView.scrollPreviousMonth() }
 
-        showNextMonthBut.setOnClickListener { compactCalendarView.showNextMonth() }
+        showNextMonthBut.setOnClickListener { compactCalendarView.scrollNextMonth() }
 
-        val showCalendarOnClickLis = calendarShowLis
+        val showCalendarOnClickLis = calendarShowListener
         slideCalendarBut.setOnClickListener(showCalendarOnClickLis)
 
-        val exposeCalendarListener = calendarExposeLis
+        val exposeCalendarListener = calendarExposeListener
         showCalendarWithAnimationBut.setOnClickListener(exposeCalendarListener)
 
         compactCalendarView.setAnimationListener(object : CompactCalendarView.CompactCalendarAnimationListener {
