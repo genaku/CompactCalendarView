@@ -48,9 +48,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.github.sundeepk.compactcalendarview.CompactCalendarView.CompactCalendarViewListener;
-import static com.github.sundeepk.compactcalendarview.CompactCalendarView.FILL_LARGE_INDICATOR;
-import static com.github.sundeepk.compactcalendarview.CompactCalendarView.NO_FILL_LARGE_INDICATOR;
-import static com.github.sundeepk.compactcalendarview.CompactCalendarView.SMALL_INDICATOR;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.Mockito.mock;
@@ -83,8 +80,8 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         dateFormatForMonth = new SimpleDateFormat("MMM - yyyy", Locale.getDefault());
         injectInstrumentation(InstrumentationRegistry.getInstrumentation());
         activity = getActivity();
-        compactCalendarView = (CompactCalendarView) activity.findViewById(R.id.compactcalendar_view);
-        mainContent = (View) activity.findViewById(R.id.parent);
+        compactCalendarView = activity.findViewById(R.id.compactcalendar_view);
+        mainContent = activity.findViewById(R.id.parent);
         onClosedCallCount = 0;
         onOpenedCallCount = 0;
     }
@@ -104,7 +101,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
     }
 
     @Test
-    public void testItDoesNotSelectFirstDayWhenItsDisableOnNextMonth() throws InterruptedException {
+    public void testItDoesNotSelectFirstDayWhenItsDisableOnNextMonth() {
         CompactCalendarViewListener listener = mock(CompactCalendarViewListener.class);
         compactCalendarView.setListener(listener);
 
@@ -244,7 +241,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         setDate(new Date(1423353600000L));
         addEvents(Calendar.FEBRUARY, 2015);
         onView(withId(R.id.compactcalendar_view)).perform(clickXY(60, 150));
-        setIndicatorType(NO_FILL_LARGE_INDICATOR, SMALL_INDICATOR, FILL_LARGE_INDICATOR);
+        setIndicatorType(Companion.getNO_FILL_LARGE_INDICATOR(), Companion.getSMALL_INDICATOR(), Companion.getFILL_LARGE_INDICATOR());
         capture("testItDrawNoFillLargeIndicatorOnCurrentSelectedDayWithSmallIndicatorForEvents");
     }
 
@@ -254,7 +251,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         setDate(new Date(1423353600000L));
         addEvents(Calendar.FEBRUARY, 2015);
         onView(withId(R.id.compactcalendar_view)).perform(clickXY(60, 150));
-        setIndicatorType(NO_FILL_LARGE_INDICATOR, NO_FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR);
+        setIndicatorType(Companion.getNO_FILL_LARGE_INDICATOR(), Companion.getNO_FILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR());
         capture("testItDrawNoFillLargeIndicatorOnCurrentSelectedDayWithNoFillLargeIndicatorForEvents");
     }
 
@@ -264,7 +261,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         setDate(new Date(1423353600000L));
         addEvents(Calendar.FEBRUARY, 2015);
         onView(withId(R.id.compactcalendar_view)).perform(clickXY(60, 150));
-        setIndicatorType(FILL_LARGE_INDICATOR, SMALL_INDICATOR, FILL_LARGE_INDICATOR);
+        setIndicatorType(Companion.getFILL_LARGE_INDICATOR(), Companion.getSMALL_INDICATOR(), Companion.getFILL_LARGE_INDICATOR());
         capture("testItDrawFillLargeIndicatorOnCurrentSelectedDayWithSmallIndicatorForEvents");
     }
 
@@ -274,7 +271,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         setDate(new Date(1423353600000L));
         addEvents(Calendar.FEBRUARY, 2015);
         onView(withId(R.id.compactcalendar_view)).perform(clickXY(60, 150));
-        setIndicatorType(FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR);
+        setIndicatorType(Companion.getFILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR());
         capture("testItDrawFillLargeIndicatorOnCurrentSelectedDayWithFillLargeIndicatorForEvents");
     }
 
@@ -283,7 +280,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         //Sun, 08 Feb 2015 00:00:00 GMT
         setDate(new Date(1423353600000L));
         onView(withId(R.id.compactcalendar_view)).perform(clickXY(60, 150));
-        setIndicatorType(FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR);
+        setIndicatorType(Companion.getFILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR());
         List<Event> events = getEvents(1423353600000L, 1);
 
         compactCalendarView.addEvents(events);
@@ -322,7 +319,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
         setDate(new Date(1423353600000L));
         addEvents(Calendar.FEBRUARY, 2015);
         onView(withId(R.id.compactcalendar_view)).perform(clickXY(60, 150));
-        setIndicatorType(FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR, FILL_LARGE_INDICATOR);
+        setIndicatorType(Companion.getFILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR(), Companion.getFILL_LARGE_INDICATOR());
         capture("testItDrawsFillLargeIndicatorForEventsWhenDrawEventsBelowDayIndicatorsIsTrue");
     }
 
@@ -531,7 +528,7 @@ public class ApplicationTest extends ActivityInstrumentationTestCase2<MainActivi
     }
 
     @Test
-    public void testItDoesNotThrowNullPointerWhenNoAnimationListenerIsSet() throws Throwable {
+    public void testItDoesNotThrowNullPointerWhenNoAnimationListenerIsSet() {
         //Sun, 08 Feb 2015 00:00:00 GMT
         compactCalendarView.setAnimationListener(null);
         setDate(new Date(1423353600000L));

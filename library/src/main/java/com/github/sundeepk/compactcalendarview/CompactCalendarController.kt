@@ -8,7 +8,10 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
 import android.widget.OverScroller
-import com.github.sundeepk.compactcalendarview.CompactCalendarView.*
+import com.github.sundeepk.compactcalendarview.CompactCalendarView.CompactCalendarViewListener
+import com.github.sundeepk.compactcalendarview.CompactCalendarView.Companion.FILL_LARGE_INDICATOR
+import com.github.sundeepk.compactcalendarview.CompactCalendarView.Companion.NO_FILL_LARGE_INDICATOR
+import com.github.sundeepk.compactcalendarview.CompactCalendarView.Companion.SMALL_INDICATOR
 import com.github.sundeepk.compactcalendarview.domain.Event
 import java.util.*
 
@@ -16,7 +19,7 @@ internal class CompactCalendarController(
         private val dayPaint: Paint,
         private val scroller: OverScroller,
         private val textSizeRect: Rect,
-        attrs: AttributeSet,
+        attrs: AttributeSet?,
         context: Context,
         private var currentDayBackgroundColor: Int,
         private var calenderTextColor: Int,
