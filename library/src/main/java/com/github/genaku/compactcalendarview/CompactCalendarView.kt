@@ -152,10 +152,12 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
         mCompactCalendarController.shouldDrawIndicatorsBelowSelectedDays(shouldDrawIndicatorsBelowSelectedDays)
     }
 
-    fun setCurrentDate(dateTimeMonth: Date) {
-        mCompactCalendarController.setCurrentDate(dateTimeMonth)
-        invalidate()
-    }
+    var currentDate: Date
+        get() = mCompactCalendarController.currentDate
+        set(value) {
+            mCompactCalendarController.currentDate = value
+            invalidate()
+        }
 
     fun scrollToDate(dateTimeMonth: Date) {
         mCompactCalendarController.scrollToDate(dateTimeMonth)

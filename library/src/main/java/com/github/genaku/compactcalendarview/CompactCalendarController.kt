@@ -129,6 +129,33 @@ internal class CompactCalendarController(
             return calendar.time
         }
 
+    var currentDate: Date
+        get() = mCurrentDate
+        set(value) {
+            mDistanceX = 0f
+            mMonthsScrolledSoFar = 0
+            mAccumulatedScrollOffset.x = 0f
+            scroller.startScroll(0, 0, 0, 0)
+            mCurrentDate = Date(value.time)
+            mCurrentCalender.time = mCurrentDate
+            mTodayCalender = Calendar.getInstance(timeZone, locale)
+            setToMidnight(mCurrentCalender)
+        }
+
+/*
+    fun setCurrentDate(dateTimeMonth: Date) {
+        mDistanceX = 0f
+        mMonthsScrolledSoFar = 0
+        mAccumulatedScrollOffset.x = 0f
+        scroller.startScroll(0, 0, 0, 0)
+        mCurrentDate = Date(dateTimeMonth.time)
+        mCurrentCalender.time = mCurrentDate
+        mTodayCalender = Calendar.getInstance(timeZone, locale)
+        setToMidnight(mCurrentCalender)
+    }
+*/
+
+
     private enum class Direction {
         NONE, HORIZONTAL, VERTICAL
     }
@@ -311,7 +338,7 @@ internal class CompactCalendarController(
         mAccumulatedScrollOffset.x = (mMonthsScrolledSoFar * width).toFloat()
         if (mShouldSelectFirstDayOfMonthOnScroll) {
             setCalenderToFirstDayOfMonth(mCalendarWithFirstDayOfMonth, mCurrentCalender.time, 0, 1)
-            setCurrentDate(mCalendarWithFirstDayOfMonth.time)
+            currentDate = mCalendarWithFirstDayOfMonth.time
         }
         performMonthScrollCallback()
     }
@@ -321,7 +348,7 @@ internal class CompactCalendarController(
         mAccumulatedScrollOffset.x = (mMonthsScrolledSoFar * width).toFloat()
         if (mShouldSelectFirstDayOfMonthOnScroll) {
             setCalenderToFirstDayOfMonth(mCalendarWithFirstDayOfMonth, mCurrentCalender.time, 0, -1)
-            setCurrentDate(mCalendarWithFirstDayOfMonth.time)
+            currentDate = mCalendarWithFirstDayOfMonth.time
         }
         performMonthScrollCallback()
     }
@@ -546,20 +573,9 @@ internal class CompactCalendarController(
                 (Math.abs(remainingScrollAfterFingerLifted.toInt()) / width.toFloat() * ANIMATION_SCREEN_SET_DURATION_MILLIS).toInt())
     }
 
-    fun setCurrentDate(dateTimeMonth: Date) {
-        mDistanceX = 0f
-        mMonthsScrolledSoFar = 0
-        mAccumulatedScrollOffset.x = 0f
-        scroller.startScroll(0, 0, 0, 0)
-        mCurrentDate = Date(dateTimeMonth.time)
-        mCurrentCalender.time = mCurrentDate
-        mTodayCalender = Calendar.getInstance(timeZone, locale)
-        setToMidnight(mCurrentCalender)
-    }
-
     fun scrollToDate(dateTimeMonth: Date) {
         if (dateTimeMonth.year == mCurrentDate.year && dateTimeMonth.month == mCurrentDate.month) {
-            setCurrentDate(dateTimeMonth)
+            currentDate = dateTimeMonth
             return
         }
         // TODO scroll to requested month
