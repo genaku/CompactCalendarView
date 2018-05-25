@@ -135,7 +135,8 @@ class CompactCalendarTab : Fragment() {
         })
 
         goTodayBut.setOnClickListener {
-            compactCalendarView.currentDate = Date()
+            Log.d("TAG", "cur date ${compactCalendarView.currentDate}")
+            compactCalendarView.scrollToDate(Date())
 //            val locale = Locale.FRANCE
 //            mDateFormatForDisplaying = SimpleDateFormat("dd-M-yyyy hh:mm:ss a", locale)
 //            val timeZone = TimeZone.getTimeZone("Europe/Paris")

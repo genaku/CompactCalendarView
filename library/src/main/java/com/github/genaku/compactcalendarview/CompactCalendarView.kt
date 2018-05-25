@@ -19,11 +19,21 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
 
     private val mAnimationHandler: AnimationHandler
 
-    private val mCompactCalendarController: CompactCalendarController = CompactCalendarController(Paint(), OverScroller(getContext()),
-            Rect(), attrs, context, Color.argb(255, 233, 84, 81),
-            Color.argb(255, 64, 64, 64), Color.argb(255, 219, 219, 219), VelocityTracker.obtain(),
-            Color.argb(255, 100, 68, 65), EventsContainer(Calendar.getInstance()),
-            Locale.getDefault(), TimeZone.getDefault())
+    private val mCompactCalendarController: CompactCalendarController = CompactCalendarController(
+            dayPaint = Paint(),
+            scroller = OverScroller(getContext()),
+            textSizeRect = Rect(),
+            attrs = attrs,
+            context = context,
+            currentDayBackgroundColor = Color.argb(255, 233, 84, 81),
+            calenderTextColor = Color.argb(255, 64, 64, 64),
+            currentSelectedDayBackgroundColor = Color.argb(255, 219, 219, 219),
+            velocityTracker = VelocityTracker.obtain(),
+            multiEventIndicatorColor = Color.argb(255, 100, 68, 65),
+            eventsContainer = EventsContainer(Calendar.getInstance()),
+            locale = Locale.getDefault(),
+            timeZone = TimeZone.getDefault()
+    )
 
     private val mGestureDetector: GestureDetectorCompat
 

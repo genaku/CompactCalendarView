@@ -3,6 +3,7 @@ package com.github.genaku.compactcalendarview
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.VelocityTracker
@@ -82,6 +83,7 @@ internal class CompactCalendarController(
     private lateinit var mTodayCalender: Calendar
     private lateinit var mCalendarWithFirstDayOfMonth: Calendar
     private lateinit var mEventsCalendar: Calendar
+    private lateinit var mCurrentVisibleCalendar: Calendar
 
     private val mAccumulatedScrollOffset = PointF()
     private val mBackground = Paint()
@@ -199,6 +201,7 @@ internal class CompactCalendarController(
         mCurrentCalender = Calendar.getInstance(timeZone, locale)
         mTodayCalender = Calendar.getInstance(timeZone, locale)
         mCalendarWithFirstDayOfMonth = Calendar.getInstance(timeZone, locale)
+        mCurrentVisibleCalendar = Calendar.getInstance(timeZone, locale)
         mEventsCalendar = Calendar.getInstance(timeZone, locale)
         mTempPreviousMonthCalendar = Calendar.getInstance(timeZone, locale)
 
@@ -574,19 +577,28 @@ internal class CompactCalendarController(
     }
 
     fun scrollToDate(dateTimeMonth: Date) {
-        if (dateTimeMonth.year == mCurrentDate.year && dateTimeMonth.month == mCurrentDate.month) {
-            currentDate = dateTimeMonth
-            return
+        val monthDiff = monthDiff(dateTimeMonth)
+        Log.d("TAG", "scroll $monthDiff months")
+        for (i in 1..(-monthDiff)) {
+            scrollNextMonth()
         }
-        // TODO scroll to requested month
-        mDistanceX = 0f
-        mMonthsScrolledSoFar = 0
-        mAccumulatedScrollOffset.x = 0f
-        scroller.startScroll(0, 0, 0, 0)
+        for (i in 1..monthDiff) {
+            scrollPreviousMonth()
+        }
         mCurrentDate = Date(dateTimeMonth.time)
         mCurrentCalender.time = mCurrentDate
         mTodayCalender = Calendar.getInstance(timeZone, locale)
         setToMidnight(mCurrentCalender)
+    }
+
+    private fun monthDiff(dateTo: Date): Int {
+        val currentYear = mCurrentVisibleCalendar.get(Calendar.YEAR)
+        val currentMonth = mCurrentVisibleCalendar.get(Calendar.MONTH)
+        val calendar = Calendar.getInstance(timeZone, locale)
+        calendar.time = dateTo
+        val newYear = calendar.get(Calendar.YEAR)
+        val newMonth = calendar.get(Calendar.MONTH)
+        return currentYear * 12 + currentMonth - newYear * 12 - newMonth
     }
 
     private fun setToMidnight(calendar: Calendar) {
@@ -658,8 +670,8 @@ internal class CompactCalendarController(
     }
 
     private fun drawCurrentMonth(canvas: Canvas) {
-        setCalenderToFirstDayOfMonth(mCalendarWithFirstDayOfMonth, mCurrentDate, -mMonthsScrolledSoFar, 0)
-        drawMonth(canvas, mCalendarWithFirstDayOfMonth, width * -mMonthsScrolledSoFar)
+        setCalenderToFirstDayOfMonth(mCurrentVisibleCalendar, mCurrentDate, -mMonthsScrolledSoFar, 0)
+        drawMonth(canvas, mCurrentVisibleCalendar, width * -mMonthsScrolledSoFar)
     }
 
     private fun drawPreviousMonth(canvas: Canvas) {
