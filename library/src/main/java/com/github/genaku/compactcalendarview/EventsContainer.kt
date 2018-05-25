@@ -32,6 +32,11 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
         addEvent(it)
     }
 
+    fun updateEvents(events: ArrayList<Event>) {
+        removeAllEvents()
+        addEvents(events)
+    }
+
     fun getEventsFor(epochMillis: Long): ArrayList<Event> =
             getEventDayEvent(epochMillis)?.events ?: ArrayList()
 

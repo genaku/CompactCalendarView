@@ -6,6 +6,10 @@ import java.util.*
 class EventComparator : Comparator<Event> {
 
     override fun compare(lhs: Event, rhs: Event): Int {
-        return if (lhs.timeInMillis < rhs.timeInMillis) -1 else if (lhs.timeInMillis == rhs.timeInMillis) 0 else 1
+        return when {
+            lhs.timeInMillis < rhs.timeInMillis -> -1
+            lhs.timeInMillis > rhs.timeInMillis -> 1
+            else -> 0
+        }
     }
 }

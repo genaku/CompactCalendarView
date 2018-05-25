@@ -132,7 +132,7 @@ internal class CompactCalendarController(
         }
 
     var currentDate: Date
-        get() = mCurrentDate
+        get() = mCurrentCalender.time
         set(value) {
             mDistanceX = 0f
             mMonthsScrolledSoFar = 0
@@ -142,6 +142,7 @@ internal class CompactCalendarController(
             mCurrentCalender.time = mCurrentDate
             mTodayCalender = Calendar.getInstance(timeZone, locale)
             setToMidnight(mCurrentCalender)
+            mCurrentDate
         }
 
 /*
@@ -616,6 +617,10 @@ internal class CompactCalendarController(
         eventsContainer.addEvents(events)
     }
 
+    fun updateEvents(events: ArrayList<Event>) {
+        eventsContainer.updateEvents(events)
+    }
+
     fun getCalendarEventsFor(epochMillis: Long): ArrayList<Event> {
         return eventsContainer.getEventsFor(epochMillis)
     }
@@ -855,7 +860,8 @@ internal class CompactCalendarController(
                 if (mCurrentCalender.get(Calendar.DAY_OF_MONTH) == day && isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) {
                     drawDayCircleIndicator(mCurrentSelectedDayIndicatorStyle, canvas, xPosition, yPosition, currentSelectedDayBackgroundColor)
                     defaultCalenderTextColorToUse = mCurrentSelectedDayTextColor
-                } else if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
+                }
+                if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
                     // TODO calculate position of circle in a more reliable way
                     drawDayCircleIndicator(mCurrentDayIndicatorStyle, canvas, xPosition, yPosition, currentDayBackgroundColor)
                     defaultCalenderTextColorToUse = mCurrentDayTextColor

@@ -104,6 +104,14 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
         invalidate()
     }
 
+    /**
+     * Updates multiple events to the calendar and invalidates the view once all events are added.
+     */
+    fun updateEvents(events: ArrayList<Event>) {
+        mCompactCalendarController.updateEvents(events)
+        invalidate()
+    }
+
     fun setAnimationListener(compactCalendarAnimationListener: CompactCalendarAnimationListener) {
         mAnimationHandler.setCompactCalendarAnimationListener(compactCalendarAnimationListener)
     }
