@@ -28,7 +28,7 @@ internal class CompactCalendarController(
         velocityTracker: VelocityTracker,
         // colors
         private var multiEventIndicatorColor: Int,
-        private var eventsContainer: EventsContainer,
+        private var eventsContainer: EventsContainerNew,
         private var locale: Locale,
         private var timeZone: TimeZone?
 ) {
@@ -71,6 +71,7 @@ internal class CompactCalendarController(
     private var mIsScrolling: Boolean = false
     private var mShouldDrawDaysHeader = true
     private var mShouldDrawIndicatorsBelowSelectedDays = false
+    private var mShouldDrawOnlyOneIndicator = false
     private var mDisplayOtherMonthDays = false
     private var mShouldSelectFirstDayOfMonthOnScroll = true
 
@@ -280,6 +281,10 @@ internal class CompactCalendarController(
         mShouldDrawIndicatorsBelowSelectedDays = shouldDrawIndicatorsBelowSelectedDays
     }
 
+    fun shouldDrawOnlyOneIndicator(shouldDrawOnlyOneIndicator: Boolean) {
+        mShouldDrawOnlyOneIndicator = shouldDrawOnlyOneIndicator
+    }
+
     fun setCurrentDayIndicatorStyle(currentDayIndicatorStyle: Int) {
         mCurrentDayIndicatorStyle = currentDayIndicatorStyle
     }
@@ -360,7 +365,7 @@ internal class CompactCalendarController(
     fun setLocale(timeZone: TimeZone, locale: Locale) {
         this.locale = locale
         this.timeZone = timeZone
-        this.eventsContainer = EventsContainer(Calendar.getInstance(this.timeZone, this.locale))
+        this.eventsContainer = EventsContainerNew(Calendar.getInstance(this.timeZone, this.locale))
         // passing null will not re-init density related values - and that's ok
         init(null)
     }
@@ -451,6 +456,13 @@ internal class CompactCalendarController(
             mCurrentCalender.timeInMillis = mCalendarWithFirstDayOfMonth.timeInMillis
             performOnDayClickCallback(mCurrentCalender.time)
         }
+    }
+
+    // zero based indexes used internally so instead of returning range of 1-7 like calendar class
+    // it returns 0-6 where 0 is Sunday instead of 1
+    fun getDayOfWeek(calendar: Calendar): Int {
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - mFirstDayOfWeekToDraw
+        return if (dayOfWeek < 0) 7 + dayOfWeek else dayOfWeek
     }
 
     // Add a little leeway buy checking if amount scrolled is almost same as expected scroll
@@ -618,11 +630,11 @@ internal class CompactCalendarController(
     }
 
     fun updateEvents(events: ArrayList<Event>) {
-        eventsContainer.updateEvents(events)
+        eventsContainer.setEvents(events)
     }
 
-    fun getCalendarEventsFor(epochMillis: Long): ArrayList<Event> {
-        return eventsContainer.getEventsFor(epochMillis)
+    fun getCalendarEventsFor(date: Date): ArrayList<Event> {
+        return eventsContainer.getDateEvents(date)
     }
 
     fun getCalendarEventsForMonth(epochMillis: Long): ArrayList<Event> {
@@ -700,10 +712,9 @@ internal class CompactCalendarController(
         }
     }
 
-    fun drawEvents(canvas: Canvas, currentMonthToDrawCalender: Calendar, offset: Int) {
+    fun drawEvents(canvas: Canvas, currentMonthToDrawCalender: Calendar, offset: Int, uniqueEvents: ArrayList<Events>?) {
+        uniqueEvents ?: return
         val currentMonth = currentMonthToDrawCalender.get(Calendar.MONTH)
-        val uniqueEvents = eventsContainer.getEventsForMonthAndYear(currentMonth, currentMonthToDrawCalender.get(Calendar.YEAR))
-                ?: return
 
         val shouldDrawCurrentDayCircle = currentMonth == mTodayCalender.get(Calendar.MONTH)
         val shouldDrawSelectedDayCircle = currentMonth == mCurrentCalender.get(Calendar.MONTH)
@@ -755,6 +766,7 @@ internal class CompactCalendarController(
                     }
 
                     when {
+                        mShouldDrawOnlyOneIndicator -> drawSingleEvent(canvas, xPosition, yPosition, eventsList)
                         eventsList.size >= 3 -> drawEventsWithPlus(canvas, xPosition, yPosition, eventsList)
                         eventsList.size == 2 -> drawTwoEvents(canvas, xPosition, yPosition, eventsList)
                         eventsList.size == 1 -> drawSingleEvent(canvas, xPosition, yPosition, eventsList)
@@ -800,19 +812,37 @@ internal class CompactCalendarController(
         }
     }
 
-    // zero based indexes used internally so instead of returning range of 1-7 like calendar class
-    // it returns 0-6 where 0 is Sunday instead of 1
-    fun getDayOfWeek(calendar: Calendar): Int {
-        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - mFirstDayOfWeekToDraw
-        return if (dayOfWeek < 0) 7 + dayOfWeek else dayOfWeek
+    fun drawWeek(canvas: Canvas, weekToDrawCalender: Calendar, offset: Int) {
+        mEventsCalendar.timeInMillis = weekToDrawCalender.timeInMillis
+        val events = eventsContainer.getEventsForWeek(mEventsCalendar)
+        drawEvents(
+                canvas = canvas,
+                currentMonthToDrawCalender = weekToDrawCalender,
+                offset = offset,
+                uniqueEvents = events
+        )
+        drawWeekDays(canvas, offset)
+        for (dayRow in 1..6) {
+            drawWeek(dayRow, canvas, weekToDrawCalender, offset)
+        }
     }
 
     fun drawMonth(canvas: Canvas, monthToDrawCalender: Calendar, offset: Int) {
-        drawEvents(canvas, monthToDrawCalender, offset)
+        mEventsCalendar.timeInMillis = monthToDrawCalender.timeInMillis
+        val events = eventsContainer.getEventsForMonth(mEventsCalendar)
+        drawEvents(
+                canvas = canvas,
+                currentMonthToDrawCalender = monthToDrawCalender,
+                offset = offset,
+                uniqueEvents = events
+        )
+        drawWeekDays(canvas, offset)
+        for (dayRow in 1..6) {
+            drawWeek(dayRow, canvas, monthToDrawCalender, offset)
+        }
+    }
 
-        //offset by one because we want to start from Monday
-        val firstDayOfMonth = getDayOfWeek(monthToDrawCalender)
-
+    private fun drawWeek(dayRow: Int, canvas: Canvas, monthToDrawCalender: Calendar, offset: Int) {
         val isSameMonthAsToday = monthToDrawCalender.get(Calendar.MONTH) == mTodayCalender.get(Calendar.MONTH)
         val isSameYearAsToday = monthToDrawCalender.get(Calendar.YEAR) == mTodayCalender.get(Calendar.YEAR)
         val isSameMonthAsCurrentCalendar = monthToDrawCalender.get(Calendar.MONTH) == mCurrentCalender.get(Calendar.MONTH) && monthToDrawCalender.get(Calendar.YEAR) == mCurrentCalender.get(Calendar.YEAR)
@@ -820,74 +850,81 @@ internal class CompactCalendarController(
         val isAnimatingWithExpose = mAnimationStatus == EXPOSE_CALENDAR_ANIMATION
 
         val maximumMonthDay = monthToDrawCalender.getActualMaximum(Calendar.DAY_OF_MONTH)
-
         mTempPreviousMonthCalendar.timeInMillis = monthToDrawCalender.timeInMillis
         mTempPreviousMonthCalendar.add(Calendar.MONTH, -1)
         val maximumPreviousMonthDay = mTempPreviousMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-        var dayColumn = 0
-        var dayRow = 0
-        while (dayColumn <= 6) {
-            if (dayRow == 7) {
-                dayRow = 0
-                if (dayColumn <= 6) {
-                    dayColumn++
-                }
-            }
+        //offset by one because we want to start from Monday
+        val firstDayOfMonth = getDayOfWeek(monthToDrawCalender)
+        val xBasePosition = mPaddingWidth.toFloat() + mPaddingLeft.toFloat() + mAccumulatedScrollOffset.x + offset.toFloat() - mPaddingRight
+        val isAnimatingWithExposeOrIndicators = isAnimatingWithExpose || mAnimationStatus == ANIMATE_INDICATORS
+        val yPosition = (dayRow * heightPerDay + mPaddingHeight).toFloat()
+        val baseDay = (dayRow - 1) * 7 + 1 - firstDayOfMonth
+
+        for (dayColumn in 0..6) {
             if (dayColumn == mDayColumnNames.size) {
                 break
             }
-            val xPosition = (mWidthPerDay * dayColumn).toFloat() + mPaddingWidth.toFloat() + mPaddingLeft.toFloat() + mAccumulatedScrollOffset.x + offset.toFloat() - mPaddingRight
-            val yPosition = (dayRow * heightPerDay + mPaddingHeight).toFloat()
-            if (xPosition >= mGrowFactor && (isAnimatingWithExpose || mAnimationStatus == ANIMATE_INDICATORS) || yPosition >= mGrowFactor) {
-                // don't draw days if animating expose or indicators
-                dayRow++
-                continue
+
+            val xPosition = xBasePosition + (mWidthPerDay * dayColumn).toFloat()
+            if (xPosition >= mGrowFactor && isAnimatingWithExposeOrIndicators || yPosition >= mGrowFactor) {
+                break
             }
-            if (dayRow == 0) {
-                // first row, so draw the first letter of the day
-                if (mShouldDrawDaysHeader) {
-                    dayPaint.color = calenderTextColor
-                    dayPaint.typeface = Typeface.DEFAULT_BOLD
-                    dayPaint.style = Paint.Style.FILL
-                    dayPaint.color = calenderTextColor
-                    canvas.drawText(mDayColumnNames[dayColumn], xPosition, mPaddingHeight.toFloat(), dayPaint)
-                    dayPaint.typeface = Typeface.DEFAULT
-                }
-            } else {
-                val day = (dayRow - 1) * 7 + dayColumn + 1 - firstDayOfMonth
-                var defaultCalenderTextColorToUse = calenderTextColor
-                if (mCurrentCalender.get(Calendar.DAY_OF_MONTH) == day && isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) {
-                    drawDayCircleIndicator(mCurrentSelectedDayIndicatorStyle, canvas, xPosition, yPosition, currentSelectedDayBackgroundColor)
-                    defaultCalenderTextColorToUse = mCurrentSelectedDayTextColor
-                }
-                if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
-                    // TODO calculate position of circle in a more reliable way
-                    drawDayCircleIndicator(mCurrentDayIndicatorStyle, canvas, xPosition, yPosition, currentDayBackgroundColor)
-                    defaultCalenderTextColorToUse = mCurrentDayTextColor
-                }
+
+            val day = baseDay + dayColumn
+            var defaultCalenderTextColorToUse = calenderTextColor
+            if (mCurrentCalender.get(Calendar.DAY_OF_MONTH) == day && isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) {
+                drawDayCircleIndicator(mCurrentSelectedDayIndicatorStyle, canvas, xPosition, yPosition, currentSelectedDayBackgroundColor)
+                defaultCalenderTextColorToUse = mCurrentSelectedDayTextColor
+            }
+            if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
+                // TODO calculate position of circle in a more reliable way
+                drawDayCircleIndicator(mCurrentDayIndicatorStyle, canvas, xPosition, yPosition, currentDayBackgroundColor)
+                defaultCalenderTextColorToUse = mCurrentDayTextColor
+            }
+            if (mDisplayOtherMonthDays) {
+                dayPaint.style = Paint.Style.FILL
+                dayPaint.color = mOtherMonthDaysTextColor
                 if (day <= 0) {
-                    if (mDisplayOtherMonthDays) {
-                        // Display day month before
-                        dayPaint.style = Paint.Style.FILL
-                        dayPaint.color = mOtherMonthDaysTextColor
-                        canvas.drawText((maximumPreviousMonthDay + day).toString(), xPosition, yPosition, dayPaint)
-                    }
+                    // Display day month before
+                    canvas.drawText((maximumPreviousMonthDay + day).toString(), xPosition, yPosition, dayPaint)
                 } else if (day > maximumMonthDay) {
-                    if (mDisplayOtherMonthDays) {
-                        // Display day month after
-                        dayPaint.style = Paint.Style.FILL
-                        dayPaint.color = mOtherMonthDaysTextColor
-                        canvas.drawText((day - maximumMonthDay).toString(), xPosition, yPosition, dayPaint)
-                    }
-                } else {
-                    dayPaint.style = Paint.Style.FILL
-                    dayPaint.color = defaultCalenderTextColorToUse
-                    canvas.drawText(day.toString(), xPosition, yPosition, dayPaint)
+                    // Display day month after
+                    canvas.drawText((day - maximumMonthDay).toString(), xPosition, yPosition, dayPaint)
                 }
             }
-            dayRow++
+            if (day in 1..maximumMonthDay) {
+                dayPaint.style = Paint.Style.FILL
+                dayPaint.color = defaultCalenderTextColorToUse
+                canvas.drawText(day.toString(), xPosition, yPosition, dayPaint)
+            }
         }
+    }
+
+    private fun drawWeekDays(canvas: Canvas, offset: Int) {
+        if (!mShouldDrawDaysHeader) {
+            return
+        }
+        if (mPaddingHeight.toFloat() >= mGrowFactor) {
+            return
+        }
+
+        val isAnimating = (mAnimationStatus == EXPOSE_CALENDAR_ANIMATION || mAnimationStatus == ANIMATE_INDICATORS)
+        val xBasePosition = mPaddingWidth.toFloat() + mPaddingLeft.toFloat() + mAccumulatedScrollOffset.x + offset.toFloat() - mPaddingRight
+
+        dayPaint.color = calenderTextColor
+        dayPaint.typeface = Typeface.DEFAULT_BOLD
+        dayPaint.style = Paint.Style.FILL
+        dayPaint.color = calenderTextColor
+
+        for (dayColumn in 0..6) {
+            val xPosition = xBasePosition + (mWidthPerDay * dayColumn).toFloat()
+            if (!isAnimating || xPosition < mGrowFactor) {
+                canvas.drawText(mDayColumnNames[dayColumn], xPosition, mPaddingHeight.toFloat(), dayPaint)
+            }
+        }
+
+        dayPaint.typeface = Typeface.DEFAULT
     }
 
     private fun drawDayCircleIndicator(indicatorStyle: Int, canvas: Canvas, x: Float, y: Float, color: Int, circleScale: Float = 1f) {

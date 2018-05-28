@@ -77,7 +77,7 @@ class CompactCalendarTab : Fragment() {
         compactCalendarView.setFirstDayOfWeek(Calendar.MONDAY)
 
         loadEvents()
-        loadEventsForYear(2017)
+        loadEventsForYear(2018)
         compactCalendarView.invalidate()
 
         logEventsByMonth(compactCalendarView)
@@ -89,7 +89,7 @@ class CompactCalendarTab : Fragment() {
         // compactCalendarView.shouldScrollMonth(false);
 
         // show days from other months as greyed out days
-        // compactCalendarView.displayOtherMonthDays(true);
+        compactCalendarView.displayOtherMonthDays(true)
 
         // show Sunday as first day of month
         // compactCalendarView.setShouldShowMondayAsFirstDay(false);
@@ -134,6 +134,8 @@ class CompactCalendarTab : Fragment() {
             override fun onClosed() {}
         })
 
+//        compactCalendarView.shouldDrawOnlyOneIndicator(true)
+
         goTodayBut.setOnClickListener {
             Log.d("TAG", "cur date ${compactCalendarView.currentDate}")
             compactCalendarView.scrollToDate(Date())
@@ -153,7 +155,7 @@ class CompactCalendarTab : Fragment() {
 
 
         // uncomment below to show indicators above small indicator events
-        // compactCalendarView.shouldDrawIndicatorsBelowSelectedDays(true);
+        compactCalendarView.shouldDrawIndicatorsBelowSelectedDays(true)
 
         // uncomment below to open onCreate
         // openCalendarOnCreate(v);
@@ -206,7 +208,7 @@ class CompactCalendarTab : Fragment() {
         mCurrentCalender.time = Date()
         mCurrentCalender.set(Calendar.DAY_OF_MONTH, 1)
         val firstDayOfMonth = mCurrentCalender.time
-        for (i in 0..5) {
+        for (i in 0..20) {
             mCurrentCalender.time = firstDayOfMonth
             if (month > -1) {
                 mCurrentCalender.set(Calendar.MONTH, month)

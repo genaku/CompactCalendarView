@@ -3,16 +3,17 @@ package com.github.genaku.compactcalendarview
 import com.github.genaku.compactcalendarview.comparators.EventComparator
 import com.github.genaku.compactcalendarview.domain.Event
 import java.util.*
+import kotlin.collections.ArrayList
 
-internal class EventsContainer(private val eventsCalendar: Calendar) {
+class EventsContainer(private val eventsCalendar: Calendar) {
 
     private val eventsByMonthAndYearMap = HashMap<String, ArrayList<Events>>()
     private val eventsComparator = EventComparator()
 
     fun addEvent(event: Event) {
         eventsCalendar.timeInMillis = event.timeInMillis
-        val key = getKeyForCalendarEvent(eventsCalendar)
-        val eventsForMonth = eventsByMonthAndYearMap[key] ?: ArrayList()
+        val monthKey = getKeyForCalendarEvent(eventsCalendar)
+        val eventsForMonth = eventsByMonthAndYearMap[monthKey] ?: ArrayList()
         val eventsForTargetDay = getEventDayEvent(event.timeInMillis)
         if (eventsForTargetDay == null) {
             val events = ArrayList<Event>()
@@ -21,7 +22,7 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
         } else {
             eventsForTargetDay.events.add(event)
         }
-        eventsByMonthAndYearMap[key] = eventsForMonth
+        eventsByMonthAndYearMap[monthKey] = eventsForMonth
     }
 
     fun removeAllEvents() {
@@ -32,7 +33,7 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
         addEvent(it)
     }
 
-    fun updateEvents(events: ArrayList<Event>) {
+    fun setEvents(events: ArrayList<Event>) {
         removeAllEvents()
         addEvents(events)
     }
@@ -41,7 +42,7 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
             getEventDayEvent(epochMillis)?.events ?: ArrayList()
 
     fun getEventsForMonthAndYear(month: Int, year: Int): ArrayList<Events>? =
-            eventsByMonthAndYearMap[year.toString() + "_" + month]
+            eventsByMonthAndYearMap["$year}_$month"]
 
     fun getEventsForMonth(eventTimeInMillis: Long): ArrayList<Event> {
         eventsCalendar.timeInMillis = eventTimeInMillis
@@ -95,8 +96,8 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
 
     fun removeEvent(event: Event) {
         eventsCalendar.timeInMillis = event.timeInMillis
-        val key = getKeyForCalendarEvent(eventsCalendar)
-        val eventsForMonthAndYear = eventsByMonthAndYearMap[key] ?: return
+        val monthKey = getKeyForCalendarEvent(eventsCalendar)
+        val eventsForMonthAndYear = eventsByMonthAndYearMap[monthKey] ?: return
 
         val eventsForMonthYrItr = eventsForMonthAndYear.iterator()
         while (eventsForMonthYrItr.hasNext()) {
@@ -113,7 +114,7 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
         }
 
         if (eventsForMonthAndYear.isEmpty()) {
-            eventsByMonthAndYearMap.remove(key)
+            eventsByMonthAndYearMap.remove(monthKey)
         }
     }
 
@@ -124,5 +125,6 @@ internal class EventsContainer(private val eventsCalendar: Calendar) {
     //E.g. 4 2016 becomes 2016_4
     private fun getKeyForCalendarEvent(cal: Calendar): String =
             cal.get(Calendar.YEAR).toString() + "_" + cal.get(Calendar.MONTH)
+
 
 }

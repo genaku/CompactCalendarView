@@ -30,7 +30,7 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
             currentSelectedDayBackgroundColor = Color.argb(255, 219, 219, 219),
             velocityTracker = VelocityTracker.obtain(),
             multiEventIndicatorColor = Color.argb(255, 100, 68, 65),
-            eventsContainer = EventsContainer(Calendar.getInstance()),
+            eventsContainer = EventsContainerNew(Calendar.getInstance()),
             locale = Locale.getDefault(),
             timeZone = TimeZone.getDefault()
     )
@@ -145,7 +145,7 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
      * @return
      */
     fun getEvents(date: Date): ArrayList<Event> =
-            mCompactCalendarController.getCalendarEventsFor(date.time)
+            mCompactCalendarController.getCalendarEventsFor(date)
 
     fun setFirstDayOfWeek(dayOfWeek: Int) {
         mCompactCalendarController.setFirstDayOfWeek(dayOfWeek)
@@ -168,6 +168,10 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
 
     fun shouldDrawIndicatorsBelowSelectedDays(shouldDrawIndicatorsBelowSelectedDays: Boolean) {
         mCompactCalendarController.shouldDrawIndicatorsBelowSelectedDays(shouldDrawIndicatorsBelowSelectedDays)
+    }
+
+    fun shouldDrawOnlyOneIndicator(shouldDrawOnlyOneIndicator: Boolean) {
+        mCompactCalendarController.shouldDrawOnlyOneIndicator(shouldDrawOnlyOneIndicator)
     }
 
     var currentDate: Date
@@ -214,7 +218,7 @@ class CompactCalendarView @JvmOverloads constructor(context: Context, attrs: Att
      * @return
      */
     fun getEvents(epochMillis: Long): ArrayList<Event> =
-            mCompactCalendarController.getCalendarEventsFor(epochMillis)
+            mCompactCalendarController.getCalendarEventsFor(Date(epochMillis))
 
     /**
      * Fetches the events for the month of the epochMillis passed in and returns a sorted list of events

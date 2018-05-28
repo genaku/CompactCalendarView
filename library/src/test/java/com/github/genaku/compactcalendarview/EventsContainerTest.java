@@ -107,8 +107,8 @@ public class EventsContainerTest {
     @Test
     public void testItRemovesEventFromCacheIfEmpty() {
         //Sun, 01 Feb 2015 00:00:00 GMT
-        Event event = new Event(Color.BLUE, 1422748800001L);
-        Event event2 = new Event(Color.BLUE, 1442758800000L);
+        Event event = new Event(Color.BLUE, 1422748800001L, null);
+        Event event2 = new Event(Color.BLUE, 1442758800000L, null);
         underTest.addEvent(event);
         underTest.addEvent(event2);
 
@@ -123,8 +123,8 @@ public class EventsContainerTest {
     @Test
     public void testItRemovesEventFromCacheIfEmptyUsingEpoch() {
         //Sun, 01 Feb 2015 00:00:00 GMT
-        Event event = new Event(Color.BLUE, 1422748800001L);
-        Event event2 = new Event(Color.BLUE, 1442758800000L);
+        Event event = new Event(Color.BLUE, 1422748800001L, null);
+        Event event2 = new Event(Color.BLUE, 1442758800000L, null);
         underTest.addEvent(event);
         underTest.addEvent(event2);
 

@@ -454,6 +454,7 @@ public class CompactCalendarControllerTest {
         verify(eventsContainer).removeEvents(events);
         verifyNoMoreInteractions(eventsContainer);
     }
+/*
 
     @Test
     public void testItGetCalendarEventsForADate() {
@@ -461,6 +462,7 @@ public class CompactCalendarControllerTest {
         verify(eventsContainer).getEventsFor(1433701251000L);
         verifyNoMoreInteractions(eventsContainer);
     }
+*/
 
     @Test
     public void testItRemovesCalendarEventsForADate() {
