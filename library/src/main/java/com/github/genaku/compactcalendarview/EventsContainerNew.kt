@@ -49,24 +49,19 @@ class EventsContainerNew(private val eventsCalendar: Calendar) {
 
     fun getDateEvents(date: Date): ArrayList<Event> {
         eventsCalendar.timeInMillis = date.time
-        return mEventsArray.get(getKey(eventsCalendar))?.events ?: ArrayList()
+        val key = getKey(eventsCalendar)
+        return getEventsForKey(key)?.events ?: ArrayList()
     }
 
-    fun getEventsForMonth(cal: Calendar): ArrayList<Events> {
+    private fun getEventsForMonth(cal: Calendar): ArrayList<Events> {
         val yearMonthKey = getYearMonthKey(cal)
         val firstDay = yearMonthKey + 1
         val lastDay = yearMonthKey + cal.getActualMaximum(Calendar.DAY_OF_MONTH)
-        Log.d("TAG", "month for ${getKey(cal)} from $firstDay to $lastDay")
         return getEvents(firstDay, lastDay)
     }
 
-    fun getEventsForWeek(weekCal: Calendar): ArrayList<Events> {
-        weekCal.set(Calendar.DAY_OF_WEEK, weekCal.firstDayOfWeek)
-        val firstDay = getKey(weekCal)
-        weekCal.add(Calendar.DAY_OF_YEAR, 6)
-        val lastDay = getKey(weekCal)
-        Log.d("TAG", "week for ${getKey(weekCal)} from $firstDay to $lastDay")
-        return getEvents(firstDay, lastDay)
+    fun getEventsForKey(key: Int): Events? {
+        return mEventsArray.get(key)
     }
 
     private fun getEvents(firstDay: Int, lastDay: Int): ArrayList<Events> {
